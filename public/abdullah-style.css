@@ -592,3 +592,30 @@ html, body {
     min-height: clamp(23.5rem, 117vw, 56rem) !important;
   }
 }
+
+/* Ensure Testimonials / Reviews slider drags smoothly on all devices (desktop, tablet, mobile) */
+.swiper,
+.swiper-wrapper,
+.swiper-slide,
+.swiper-card {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+  touch-action: pan-y !important;
+}
+.swiper img {
+  -webkit-user-drag: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}
+.swiper-bullet {
+  cursor: pointer !important;
+}
+.drag-wrap {
+  pointer-events: none !important;
+}
+@media (hover: none), (pointer: coarse) {
+  .swiper-wrapper {
+    cursor: grab !important;
+  }
+}

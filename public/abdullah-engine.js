@@ -193,7 +193,7 @@ const MobileMenu = {
 
     // Add click handler
     Utils.addEvent(this.menuTrigger, 'click', () => this.toggle());
-    Utils.$('.nav-menu-wrap a, .nav-menu a').forEach(link => {
+    Utils.$$('.nav-menu-wrap a, .nav-menu a').forEach(link => {
       Utils.addEvent(link, 'click', () => {
         if (this.isOpen) this.close();
       });
@@ -2278,278 +2278,380 @@ const CTAAnimation = {
 };
   
   // ==========================================================================
-  // SWIPER INITIALIZATION WITH CUSTOM DRAG INDICATOR
+  // SWIPER INITIALIZATION WITH CUSTOM DRAG INDICATOR (ALL DEVICES)
   // ==========================================================================
   const SwiperInit = {
     instance: null,
+    swiperEl: null,
+    wrapperEl: null,
+    slides: [],
+    paginationEl: null,
     dragWrap: null,
     dragTween: null,
+    slideTween: null,
+    currentIndex: 0,
+    spaceBetween: 14,
     isDragging: false,
+    isPointerDown: false,
+    isHorizontalDrag: null,
     isInsideSwiper: false,
     dragStartX: 0,
     dragStartY: 0,
+    dragCurrentX: 0,
+    dragStartTime: 0,
+    startTranslateX: 0,
+    lastTouchTime: 0,
     lastDragDirection: null, // 'left' or 'right'
 
     init() {
-      if (typeof Swiper === 'undefined' || !Utils.$('.swiper')) return;
-
-      this.dragWrap = Utils.$('.drag-wrap');
-      if (!this.dragWrap) {
-        console.warn('SwiperInit: .drag-wrap element not found');
-        return;
-      }
-
-      gsap.set(this.dragWrap, { 
-        opacity: 0, 
-        scale: 0.8,
-        pointerEvents: 'none',
-        position: 'fixed',
-        zIndex: 9999
-      });
-
-      this.instance = new Swiper('.swiper', {
-        slidesPerView: 1,
-        spaceBetween: 14,
-        loop: false,
-        autoHeight: true,
-        simulateTouch: true,
-        grabCursor: false,
-        speed: 500,
-        resistanceRatio: 0.85,
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-          bulletClass: 'swiper-bullet',
-          bulletActiveClass: 'is-active'
-        },
-        on: {
-          touchStart: (swiper, event) => {
-            this.isDragging = true;
-            this.dragStartX = event.touches?.[0]?.clientX || event.clientX || 0;
-            this.dragStartY = event.touches?.[0]?.clientY || event.clientY || 0;
-            this.lastDragDirection = null;
-            this.startDragging(event);
-          },
-          touchMove: (swiper, event) => {
-            this.updateDragIndicatorPosition(event);
-            
-            // Calculate drag direction
-            const currentX = event.touches?.[0]?.clientX || event.clientX || 0;
-            const currentY = event.touches?.[0]?.clientY || event.clientY || 0;
-            const deltaX = currentX - this.dragStartX;
-            const deltaY = Math.abs(currentY - this.dragStartY);
-            
-            
-            // Detect direction
-            if (Math.abs(deltaX) > 5 && Math.abs(deltaX) > deltaY * 0.5) {
-              const newDirection = deltaX < 0 ? 'left' : 'right';
-              
-              
-              if (newDirection !== this.lastDragDirection) {
-                this.lastDragDirection = newDirection;
-                
-                // Scale icons DIRECTLY HERE
-                
-                const leftIcon = this.dragWrap?.querySelector('.drag-left-icon');
-                const rightIcon = this.dragWrap?.querySelector('.drag-right-icon');
-                
-                
-                if (leftIcon && rightIcon) {
-                  if (newDirection === 'left') {
-                    gsap.to(leftIcon, { scale: 1.5, duration: 0.2, ease: 'back.out(2)' });
-                    gsap.to(rightIcon, { scale: 0.8, duration: 0.2, ease: 'power2.out' });
-                    
-                    // Add classes
-                    leftIcon.classList.add('is-active');
-                    rightIcon.classList.remove('is-active');
-                  } else {
-                    gsap.to(rightIcon, { scale: 1.5, duration: 0.2, ease: 'back.out(2)' });
-                    gsap.to(leftIcon, { scale: 0.8, duration: 0.2, ease: 'power2.out' });
-                    
-                    // Add classes
-                    rightIcon.classList.add('is-active');
-                    leftIcon.classList.remove('is-active');
-                  }
-                } else {
-                }
-              }
-            }
-          },
-          touchEnd: () => {
-            this.isDragging = false;
-            this.backToIdle();
-          },
-          sliderMove: (swiper, event) => {
-            this.updateDragIndicatorPosition(event);
-            
-            // Calculate drag direction for desktop
-            const currentX = event.clientX || 0;
-            const currentY = event.clientY || 0;
-            
-            if (currentX === 0) return; // Skip if no valid coordinates
-            
-            const deltaX = currentX - this.dragStartX;
-            const deltaY = Math.abs(currentY - this.dragStartY);
-            
-            
-            // Detect direction
-            if (Math.abs(deltaX) > 5) {
-              const newDirection = deltaX < 0 ? 'left' : 'right';
-              
-              
-              if (newDirection !== this.lastDragDirection) {
-                this.lastDragDirection = newDirection;
-                
-                // Scale icons DIRECTLY HERE
-                
-                const leftIcon = this.dragWrap?.querySelector('.drag-left-icon');
-                const rightIcon = this.dragWrap?.querySelector('.drag-right-icon');
-                
-                
-                if (leftIcon && rightIcon) {
-                  if (newDirection === 'left') {
-                    gsap.to(leftIcon, { scale: 1.5, duration: 0.2, ease: 'back.out(2)' });
-                    gsap.to(rightIcon, { scale: 0.8, duration: 0.2, ease: 'power2.out' });
-                    
-                    // Add classes
-                    leftIcon.classList.add('is-active');
-                    rightIcon.classList.remove('is-active');
-                  } else {
-                    gsap.to(rightIcon, { scale: 1.5, duration: 0.2, ease: 'back.out(2)' });
-                    gsap.to(leftIcon, { scale: 0.8, duration: 0.2, ease: 'power2.out' });
-                    
-                    // Add classes
-                    rightIcon.classList.add('is-active');
-                    leftIcon.classList.remove('is-active');
-                  }
-                } else {
-                }
-              }
-            }
-          }
-        }
-      });
-
       const swiperEl = Utils.$('.swiper');
-      if (swiperEl) {
-        // Mouse enters swiper - SHOW cursor
-        Utils.addEvent(swiperEl, 'mouseenter', (e) => {
-          this.isInsideSwiper = true;
-          this.showDragIndicatorIdle();
-          this.updateDragIndicatorPosition(e);
-        });
+      if (!swiperEl) return;
 
-        // Mouse leaves swiper - HIDE cursor (only if not dragging)
-        Utils.addEvent(swiperEl, 'mouseleave', (e) => {
-          
-          // IMPORTANT: Do NOT change isInsideSwiper if we're dragging
-          // Let the mouseup event determine final position
-          if (!this.isDragging) {
-            this.isInsideSwiper = false;
-            this.hideDragIndicator();
+      const wrapperEl = swiperEl.querySelector('.swiper-wrapper');
+      const slides = wrapperEl ? Array.from(wrapperEl.querySelectorAll('.swiper-slide')) : [];
+      if (!wrapperEl || !slides.length) return;
+
+      this.swiperEl = swiperEl;
+      this.wrapperEl = wrapperEl;
+      this.slides = slides;
+      this.paginationEl = Utils.$('.swiper-pagination');
+      this.dragWrap = Utils.$('.drag-wrap');
+      this.currentIndex = 0;
+
+      if (this.dragWrap) {
+        gsap.set(this.dragWrap, {
+          opacity: 0,
+          scale: 0.8,
+          pointerEvents: 'none',
+          position: 'fixed',
+          zIndex: 9999
+        });
+      }
+
+      // Ensure native browser image/link dragging or text selection never hijacks swipe/drag
+      swiperEl.style.userSelect = 'none';
+      swiperEl.style.webkitUserSelect = 'none';
+      swiperEl.style.touchAction = 'pan-y';
+      wrapperEl.style.userSelect = 'none';
+      wrapperEl.style.webkitUserSelect = 'none';
+      wrapperEl.style.touchAction = 'pan-y';
+      wrapperEl.style.willChange = 'transform';
+
+      slides.forEach((slide, i) => {
+        slide.style.flexShrink = '0';
+        slide.style.userSelect = 'none';
+        slide.style.webkitUserSelect = 'none';
+        slide.style.marginRight = i < slides.length - 1 ? `${this.spaceBetween}px` : '0px';
+      });
+
+      swiperEl.querySelectorAll('img, a').forEach(el => {
+        el.setAttribute('draggable', 'false');
+      });
+
+      this.buildPagination();
+      this.goToSlide(0, false);
+
+      // Expose a Swiper-compatible instance facade
+      this.instance = {
+        slideTo: (idx) => this.goToSlide(idx, true),
+        slideNext: () => this.goToSlide(this.currentIndex + 1, true),
+        slidePrev: () => this.goToSlide(this.currentIndex - 1, true),
+        update: () => this.goToSlide(this.currentIndex, false),
+        destroy: () => {}
+      };
+
+      const isOverSwiperArea = (x, y) => {
+        if (!x && !y) return false;
+        const hit = document.elementFromPoint(x, y);
+        if (hit && hit.closest && hit.closest('.swiper')) return true;
+        const rect = swiperEl.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      };
+
+      // --- DESKTOP HOVER & DRAG INDICATOR ---
+      Utils.addEvent(swiperEl, 'mouseenter', (e) => {
+        if (Date.now() - this.lastTouchTime < 600) return;
+        this.isInsideSwiper = true;
+        this.showDragIndicatorIdle();
+        this.updateDragIndicatorPosition(e);
+      });
+
+      Utils.addEvent(swiperEl, 'mouseleave', () => {
+        if (!this.isDragging) {
+          this.isInsideSwiper = false;
+          this.hideDragIndicator();
+        }
+      });
+
+      Utils.addEvent(swiperEl, 'mousemove', (e) => {
+        if (Date.now() - this.lastTouchTime < 600) return;
+        this.updateDragIndicatorPosition(e);
+      });
+
+      // --- MOUSE DRAG (DESKTOP / LAPTOP) ---
+      Utils.addEvent(swiperEl, 'mousedown', (e) => {
+        if (Date.now() - this.lastTouchTime < 600) return;
+        if (e.button !== 0) return;
+        if (e.target && e.target.closest && e.target.closest('.swiper-bullet')) return;
+
+        e.preventDefault();
+        if (this.slideTween) this.slideTween.kill();
+
+        this.isPointerDown = true;
+        this.isDragging = true;
+        this.isHorizontalDrag = true;
+        this.dragStartX = e.clientX;
+        this.dragStartY = e.clientY;
+        this.dragCurrentX = e.clientX;
+        this.dragStartTime = Date.now();
+        this.startTranslateX = Number(gsap.getProperty(wrapperEl, 'x')) || 0;
+        this.lastDragDirection = null;
+        this.startDragging(e);
+      });
+
+      Utils.addEvent(window, 'mousemove', (e) => {
+        if (!this.isPointerDown || Date.now() - this.lastTouchTime < 600) return;
+
+        this.dragCurrentX = e.clientX;
+        this.updateDragIndicatorPosition(e);
+
+        const deltaX = e.clientX - this.dragStartX;
+        const deltaY = Math.abs(e.clientY - this.dragStartY);
+
+        this.applyLiveDrag(deltaX);
+
+        if (Math.abs(deltaX) > 4 && Math.abs(deltaX) > deltaY * 0.4) {
+          const newDirection = deltaX < 0 ? 'left' : 'right';
+          if (newDirection !== this.lastDragDirection) {
+            this.lastDragDirection = newDirection;
+            this.updateDragDirection(newDirection);
+          }
+        }
+
+        this.isInsideSwiper = isOverSwiperArea(e.clientX, e.clientY);
+      });
+
+      const endMouseDrag = (e) => {
+        if (!this.isPointerDown || Date.now() - this.lastTouchTime < 600) return;
+        this.isPointerDown = false;
+        this.isDragging = false;
+
+        const endX = typeof e?.clientX === 'number' ? e.clientX : this.dragCurrentX;
+        this.finishDrag(endX);
+
+        const stillInside = e && typeof e.clientX === 'number'
+          ? isOverSwiperArea(e.clientX, e.clientY)
+          : false;
+        this.isInsideSwiper = stillInside;
+
+        if (stillInside) {
+          this.backToIdle();
+        } else {
+          this.hideDragIndicator();
+        }
+      };
+
+      Utils.addEvent(window, 'mouseup', endMouseDrag);
+      Utils.addEvent(window, 'blur', endMouseDrag);
+
+      // --- TOUCH DRAG (MOBILE / TABLET / TOUCHSCREENS / DEVTOOLS SIMULATOR) ---
+      Utils.addEvent(swiperEl, 'touchstart', (e) => {
+        if (!e.touches || !e.touches.length) return;
+        this.lastTouchTime = Date.now();
+        if (this.slideTween) this.slideTween.kill();
+
+        const touch = e.touches[0];
+        this.isPointerDown = true;
+        this.isDragging = true;
+        this.isHorizontalDrag = null;
+        this.dragStartX = touch.clientX;
+        this.dragStartY = touch.clientY;
+        this.dragCurrentX = touch.clientX;
+        this.dragStartTime = Date.now();
+        this.startTranslateX = Number(gsap.getProperty(wrapperEl, 'x')) || 0;
+        this.lastDragDirection = null;
+      }, { passive: true });
+
+      Utils.addEvent(window, 'touchmove', (e) => {
+        if (!this.isPointerDown || !e.touches || !e.touches.length) return;
+        this.lastTouchTime = Date.now();
+
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - this.dragStartX;
+        const deltaY = touch.clientY - this.dragStartY;
+
+        if (this.isHorizontalDrag === null) {
+          if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+            this.isHorizontalDrag = Math.abs(deltaX) >= Math.abs(deltaY) * 0.65;
+            if (!this.isHorizontalDrag) {
+              this.isPointerDown = false;
+              this.isDragging = false;
+              this.goToSlide(this.currentIndex, true);
+              return;
+            }
           } else {
+            return;
           }
-        });
+        }
 
-        // Mouse moves inside swiper - FOLLOW cursor always
-        Utils.addEvent(swiperEl, 'mousemove', (e) => {
-          this.updateDragIndicatorPosition(e);
-        });
+        if (this.isHorizontalDrag) {
+          if (e.cancelable) e.preventDefault();
+          this.dragCurrentX = touch.clientX;
+          this.applyLiveDrag(deltaX);
+        }
+      }, { passive: false });
 
-        // Mouse down - START DRAG (scale up)
-        Utils.addEvent(swiperEl, 'mousedown', (e) => {
-          this.isDragging = true;
-          this.dragStartX = e.clientX;
-          this.dragStartY = e.clientY;
-          this.lastDragDirection = null;
-          this.startDragging(e);
-        });
+      const endTouchDrag = (e) => {
+        if (!this.isPointerDown) return;
+        this.lastTouchTime = Date.now();
+        const wasHorizontal = this.isHorizontalDrag;
+        this.isPointerDown = false;
+        this.isDragging = false;
+        this.isHorizontalDrag = null;
 
-        // Mouse moves anywhere while dragging - FOLLOW cursor
-        Utils.addEvent(document, 'mousemove', (e) => {
-          if (this.isDragging) {
-            this.updateDragIndicatorPosition(e);
-            
-            // Calculate drag direction
-            const deltaX = e.clientX - this.dragStartX;
-            const deltaY = Math.abs(e.clientY - this.dragStartY);
-            
-            
-            // Lower threshold - detect horizontal direction if movement > 5px and mostly horizontal
-            if (Math.abs(deltaX) > 5 && Math.abs(deltaX) > deltaY * 0.5) {
-              const newDirection = deltaX < 0 ? 'left' : 'right';
-              
-              
-              // Only update if direction changed
-              if (newDirection !== this.lastDragDirection) {
-                this.lastDragDirection = newDirection;
-                this.updateDragDirection(newDirection);
-              }
-            }
-            
-            // Track if we're inside swiper bounds during drag
-            const swiperRect = swiperEl.getBoundingClientRect();
-            const x = e.clientX;
-            const y = e.clientY;
-            const wasInside = this.isInsideSwiper;
-            this.isInsideSwiper = (
-              x >= swiperRect.left &&
-              x <= swiperRect.right &&
-              y >= swiperRect.top &&
-              y <= swiperRect.bottom
-            );
-            
-            if (wasInside !== this.isInsideSwiper) {
-            }
+        if (wasHorizontal) {
+          const changed = e?.changedTouches?.[0];
+          const endX = changed ? changed.clientX : this.dragCurrentX;
+          this.finishDrag(endX);
+        } else {
+          this.goToSlide(this.currentIndex, true);
+        }
+      };
+
+      Utils.addEvent(window, 'touchend', endTouchDrag, { passive: true });
+      Utils.addEvent(window, 'touchcancel', endTouchDrag, { passive: true });
+
+      // --- TRACKPAD HORIZONTAL TWO-FINGER SWIPE ---
+      let wheelCooldown = false;
+      Utils.addEvent(swiperEl, 'wheel', (e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 18) {
+          e.preventDefault();
+          if (wheelCooldown) return;
+          wheelCooldown = true;
+          if (e.deltaX > 0) {
+            this.goToSlide(this.currentIndex + 1, true);
+          } else {
+            this.goToSlide(this.currentIndex - 1, true);
           }
-        });
+          setTimeout(() => { wheelCooldown = false; }, 420);
+        }
+      }, { passive: false });
 
-        // Mouse up - STOP DRAG
-        Utils.addEvent(document, 'mouseup', (e) => {
-          if (this.isDragging) {
-            this.isDragging = false;
+      // Keep slide alignment crisp on resize
+      Utils.addEvent(window, 'resize', () => {
+        this.goToSlide(this.currentIndex, false);
+      }, { passive: true });
 
-            // Check: are we still inside swiper?
-            const swiperRect = swiperEl.getBoundingClientRect();
-            const x = e.clientX;
-            const y = e.clientY;
-            const stillInside = (
-              x >= swiperRect.left &&
-              x <= swiperRect.right &&
-              y >= swiperRect.top &&
-              y <= swiperRect.bottom
-            );
+      // Client text link hover — animate drag-wrap p elements
+      const clientLinks = Utils.$$('.swiper-slide .client-text-link');
+      const dragParagraphs = this.dragWrap ? this.dragWrap.querySelectorAll('p') : [];
 
-
-            this.isInsideSwiper = stillInside;
-
-            if (stillInside) {
-              // Still inside swiper - keep visible, just scale back down
-              this.backToIdle();
-            } else {
-              // Outside swiper - hide
-              this.hideDragIndicator();
-            }
-          }
-        });
-
-        // Client text link hover — animate drag-wrap p elements
-        const clientLinks = Utils.$$('.swiper-slide .client-text-link');
-        const dragParagraphs = this.dragWrap ? this.dragWrap.querySelectorAll('p') : [];
-
-        if (clientLinks.length && dragParagraphs.length >= 2) {
-          clientLinks.forEach(link => {
-            Utils.addEvent(link, 'mouseenter', () => {
-              gsap.to(dragParagraphs[0], { yPercent: -100, duration: 0.4, ease: 'power2.out' });
-              gsap.to(dragParagraphs[1], { yPercent: -100, duration: 0.4, ease: 'power2.out' });
-            });
-            Utils.addEvent(link, 'mouseleave', () => {
-              gsap.to(dragParagraphs[0], { yPercent: 0, duration: 0.4, ease: 'power2.out' });
-              gsap.to(dragParagraphs[1], { yPercent: 0, duration: 0.4, ease: 'power2.out' });
-            });
+      if (clientLinks.length && dragParagraphs.length >= 2) {
+        clientLinks.forEach(link => {
+          Utils.addEvent(link, 'mouseenter', () => {
+            gsap.to(dragParagraphs[0], { yPercent: -100, duration: 0.4, ease: 'power2.out' });
+            gsap.to(dragParagraphs[1], { yPercent: -100, duration: 0.4, ease: 'power2.out' });
           });
+          Utils.addEvent(link, 'mouseleave', () => {
+            gsap.to(dragParagraphs[0], { yPercent: 0, duration: 0.4, ease: 'power2.out' });
+            gsap.to(dragParagraphs[1], { yPercent: 0, duration: 0.4, ease: 'power2.out' });
+          });
+        });
+      }
+    },
+
+    getStepWidth() {
+      if (!this.swiperEl) return 320;
+      const slideW = this.slides[0]?.getBoundingClientRect().width || this.swiperEl.getBoundingClientRect().width || 320;
+      return slideW + this.spaceBetween;
+    },
+
+    applyLiveDrag(deltaX) {
+      if (!this.wrapperEl) return;
+      const step = this.getStepWidth();
+      const maxIndex = Math.max(0, this.slides.length - 1);
+      const minTranslate = -maxIndex * step;
+      let targetX = this.startTranslateX + deltaX;
+
+      // Rubber-band resistance at start and end edges
+      if (targetX > 0) {
+        targetX = targetX * 0.35;
+      } else if (targetX < minTranslate) {
+        targetX = minTranslate + (targetX - minTranslate) * 0.35;
+      }
+
+      gsap.set(this.wrapperEl, { x: targetX });
+    },
+
+    finishDrag(endX) {
+      const deltaX = endX - this.dragStartX;
+      const elapsed = Math.max(1, Date.now() - this.dragStartTime);
+      const velocity = deltaX / elapsed; // px per ms
+      const step = this.getStepWidth();
+      const maxIndex = Math.max(0, this.slides.length - 1);
+      const threshold = Math.min(48, step * 0.14);
+
+      let nextIndex = this.currentIndex;
+
+      if (Math.abs(deltaX) > threshold || (Math.abs(velocity) > 0.22 && Math.abs(deltaX) > 14)) {
+        const jump = Math.max(1, Math.round(Math.abs(deltaX) / step));
+        if (deltaX < 0) {
+          nextIndex = Math.min(maxIndex, this.currentIndex + jump);
+        } else {
+          nextIndex = Math.max(0, this.currentIndex - jump);
         }
       }
+
+      this.goToSlide(nextIndex, true);
+    },
+
+    goToSlide(index, animate = true) {
+      if (!this.wrapperEl || !this.slides.length) return;
+      const maxIndex = Math.max(0, this.slides.length - 1);
+      this.currentIndex = Math.max(0, Math.min(maxIndex, index));
+
+      const targetX = -this.currentIndex * this.getStepWidth();
+      if (this.slideTween) this.slideTween.kill();
+
+      if (animate) {
+        this.slideTween = gsap.to(this.wrapperEl, {
+          x: targetX,
+          duration: 0.5,
+          ease: 'power3.out'
+        });
+      } else {
+        gsap.set(this.wrapperEl, { x: targetX });
+      }
+
+      this.updatePagination();
+    },
+
+    buildPagination() {
+      if (!this.paginationEl || !this.slides.length) return;
+      this.paginationEl.innerHTML = '';
+      this.slides.forEach((_, idx) => {
+        const bullet = document.createElement('div');
+        bullet.className = idx === this.currentIndex ? 'swiper-bullet is-active' : 'swiper-bullet';
+        bullet.style.cursor = 'pointer';
+        Utils.addEvent(bullet, 'click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.goToSlide(idx, true);
+        });
+        this.paginationEl.appendChild(bullet);
+      });
+    },
+
+    updatePagination() {
+      if (!this.paginationEl) return;
+      const bullets = this.paginationEl.querySelectorAll('.swiper-bullet');
+      bullets.forEach((b, idx) => {
+        if (idx === this.currentIndex) {
+          b.classList.add('is-active');
+        } else {
+          b.classList.remove('is-active');
+        }
+      });
     },
 
     showDragIndicatorIdle() {
@@ -2721,12 +2823,19 @@ const CTAAnimation = {
         this.dragWrap.classList.remove('is-dragging', 'is-ready');
       }
 
-      if (this.instance) {
+      if (this.slideTween) {
+        this.slideTween.kill();
+        this.slideTween = null;
+      }
+
+      if (this.instance && typeof this.instance.destroy === 'function') {
         this.instance.destroy(true, true);
         this.instance = null;
       }
 
       this.isDragging = false;
+      this.isPointerDown = false;
+      this.isHorizontalDrag = null;
       this.isInsideSwiper = false;
     }
   };
@@ -3238,31 +3347,39 @@ const ResizeHandler = {
     }
   
     gsap.registerPlugin(ScrollTrigger);
-  
-    Sidebar.init();
-    GhostEngine.init();
-    StyleEngine.init();
-    HorizontalScroll.init();
-    ThemeSwitcher.init();
-    MobileMenu.init();
-  
-    CardInteractions.init();
-    ProfileImage.init();
-    CTAAnimation.init();
-    Clipboard.init();
-    ImageTrail.init();
-    ButtonHover.init();
-  
-    SwiperInit.init();
-    LenisInit.init();
+
+    const safeInit = (fn) => {
+      try {
+        fn();
+      } catch (err) {
+        console.error('Module init error:', err);
+      }
+    };
+
+    safeInit(() => Sidebar.init());
+    safeInit(() => GhostEngine.init());
+    safeInit(() => StyleEngine.init());
+    safeInit(() => HorizontalScroll.init());
+    safeInit(() => ThemeSwitcher.init());
+    safeInit(() => MobileMenu.init());
+
+    safeInit(() => CardInteractions.init());
+    safeInit(() => ProfileImage.init());
+    safeInit(() => CTAAnimation.init());
+    safeInit(() => Clipboard.init());
+    safeInit(() => ImageTrail.init());
+    safeInit(() => ButtonHover.init());
+
+    safeInit(() => SwiperInit.init());
+    safeInit(() => LenisInit.init());
     if (STATE.lenis && window.innerWidth >= 768) {
       STATE.lenis.stop();
       setTimeout(() => { if (STATE.lenis) STATE.lenis.start(); }, 3000);
     }
 
-    TextReveal.init();
-  
-    ResizeHandler.init();
+    safeInit(() => TextReveal.init());
+
+    safeInit(() => ResizeHandler.init());
   
     ScrollTrigger.refresh();
   
