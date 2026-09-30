@@ -561,7 +561,7 @@ html, body {
 
 .service-price-item { line-height: 1.15 !important; }
 
-/* Fix Book a Call & About Me horizontal clipping */
+/* Fix Book a Call & About Me horizontal clipping (byabdullahkhan.com) */
 .nav-button-mask {
   overflow-x: visible !important;
   overflow-y: clip !important;

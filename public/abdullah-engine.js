@@ -2901,7 +2901,7 @@ const CTAAnimation = {
       Utils.addEvent(this.wrapper, 'mousemove', this.handleMouseMove.bind(this));
       Utils.addEvent(this.wrapper, 'mouseleave', this.handleMouseLeave.bind(this));
 
-      console.log('✓ ABDULLAH Image Trail initialized');
+      console.log('✓ ABDULLAH Image Trail initialized (byabdullahkhan.com)');
     },
 
     getSVGCoords(e) {

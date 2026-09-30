@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import savedPortrait from './data/savedPortrait.json';
+import meJpegUrl from '../me.jpeg';
 import {
   Calendar as CalendarIcon,
   Camera,
@@ -246,8 +246,8 @@ const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [hasCustomPhoto, setHasCustomPhoto] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState(() => savedPortrait.avatarUrl || '');
+  const [hasCustomPhoto, setHasCustomPhoto] = useState(true);
+  const [avatarSrc, setAvatarSrc] = useState<string>(meJpegUrl);
 
   // Cal.com-style Book a Call / Schedule a Call Modal State
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -291,28 +291,59 @@ export default function App() {
 
   useEffect(() => {
     try {
-      const savedCutout = localStorage.getItem('abdullah_exact_cutout_v3') || savedPortrait.cutoutUrl;
-      const savedCircularAvatar = localStorage.getItem('abdullah_circular_avatar_v4') || savedPortrait.avatarUrl;
-      if (savedCutout && savedCircularAvatar) {
-        applyPortraitToDom(savedCutout, savedCircularAvatar);
-        setHasCustomPhoto(true);
-      } else if (savedCutout) {
-        const img = new Image();
-        img.onload = () => {
-          const { avatarUrl } = createCutoutAndCircularAvatar(img);
-          applyPortraitToDom(savedCutout, avatarUrl);
-          setHasCustomPhoto(true);
-          try {
-            localStorage.setItem('abdullah_circular_avatar_v4', avatarUrl);
-          } catch {
-            // Ignore storage quota issues
-          }
-        };
-        img.src = savedCutout;
-      }
+      localStorage.removeItem('abdullah_exact_cutout_v3');
+      localStorage.removeItem('abdullah_circular_avatar_v4');
     } catch {
-      // Ignore storage read issues
+      // Ignore storage errors
     }
+
+    const cachedCutout = (() => {
+      try {
+        return localStorage.getItem('abdullah_me_cutout_v6');
+      } catch {
+        return null;
+      }
+    })();
+    const cachedAvatar = (() => {
+      try {
+        return localStorage.getItem('abdullah_me_avatar_v6');
+      } catch {
+        return null;
+      }
+    })();
+
+    if (cachedCutout && cachedAvatar) {
+      applyPortraitToDom(cachedCutout, cachedAvatar);
+      setHasCustomPhoto(true);
+    }
+
+    // Always process /me.jpeg directly so the cutout & circular avatar are 100% accurate
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const { cutoutUrl, avatarUrl } = createCutoutAndCircularAvatar(img);
+      applyPortraitToDom(cutoutUrl, avatarUrl);
+      setHasCustomPhoto(true);
+      try {
+        localStorage.setItem('abdullah_me_cutout_v6', cutoutUrl);
+        localStorage.setItem('abdullah_me_avatar_v6', avatarUrl);
+      } catch {
+        // Ignore storage quota issues
+      }
+    };
+    img.src = meJpegUrl;
+
+    // Ensure browser tab favicon logo is always rendered
+    const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none"><rect width="128" height="128" rx="28" fill="#0D0D0D"/><rect x="4" y="4" width="120" height="120" rx="24" stroke="#39FF14" stroke-opacity="0.4" stroke-width="3"/><path d="M39.5 92L56.2 36H71.8L88.5 92H75.4L71.9 79.2H56.1L52.6 92H39.5ZM59.1 68.4H68.9L64 50.1L59.1 68.4Z" fill="#39FF14"/><circle cx="96" cy="36" r="10" fill="#EBEADA"/></svg>`;
+    const faviconDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(faviconSvg)}`;
+    let iconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!iconLink) {
+      iconLink = document.createElement('link');
+      iconLink.rel = 'icon';
+      document.head.appendChild(iconLink);
+    }
+    iconLink.type = 'image/svg+xml';
+    iconLink.href = faviconDataUrl;
   }, []);
 
   // Intercept clicks on all "Book a Call", "Schedule a Call", and "Let's Talk" buttons across the page
@@ -834,26 +865,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* Floating Photo Uploader Button */}
-      <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-[9999]">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-[#141413]/85 hover:bg-[#141413] text-[#39FF14] border border-[#39FF14]/40 text-[11px] sm:text-xs font-medium flex items-center gap-1.5 sm:gap-2 shadow-lg backdrop-blur-md cursor-pointer transition-transform active:scale-95"
-          title="Select your exact me.jpeg file from your device"
-        >
-          <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span>{hasCustomPhoto ? 'Change Photo' : 'Upload Exact me.jpeg'}</span>
-        </button>
-      </div>
     </>
   );
 }
