@@ -7,16 +7,39 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import meJpegUrl from '../me.jpeg';
 import {
   Calendar as CalendarIcon,
-  Camera,
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Copy,
+  Download,
+  ExternalLink,
   Globe,
   Mail,
   Video,
   X,
 } from 'lucide-react';
+
+interface BookingRecord {
+  id: string;
+  name: string;
+  email: string;
+  notes: string;
+  dateKey: string;
+  dateLabel: string;
+  slot24: string;
+  slotLabel: string;
+  timezone: string;
+  createdAt: string;
+}
+
+function toDateKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 /**
  * Removes only the exterior connected white studio background from an uploaded
@@ -178,7 +201,7 @@ function createCutoutAndCircularAvatar(img: HTMLImageElement): {
     avatarCtx.fillStyle = '#565653';
     avatarCtx.fillRect(0, 0, avatarSize, avatarSize);
 
-    const cropH = trimH * 0.56;
+    const cropH = Math.min(trimH * 0.56, trimW * 0.8);
     const headScale = (avatarSize * 0.92) / cropH;
     const destW = trimW * headScale;
     const destH = cropH * headScale;
@@ -244,29 +267,42 @@ const MONTH_NAMES = [
 
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
+function getInitialSelectableDate(): Date {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Check if today has any remaining time slots (last slot is 17:00)
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  if (d.getDay() === 0 || currentMinutes >= 17 * 60) {
+    d.setDate(d.getDate() + 1);
+  }
+  if (d.getDay() === 0) {
+    d.setDate(d.getDate() + 1);
+  }
+  return d;
+}
+
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCustomPhoto, setHasCustomPhoto] = useState(true);
-  const [avatarSrc, setAvatarSrc] = useState<string>(meJpegUrl);
+  const [avatarSrc, setAvatarSrc] = useState<string>('./me-avatar.png?v=78769');
 
   // Cal.com-style Book a Call / Schedule a Call Modal State
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const today = useMemo(() => new Date(), []);
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    const d = new Date();
-    if (d.getDay() === 0) d.setDate(d.getDate() + 1);
-    return d;
-  });
+  const initialDate = useMemo(() => getInitialSelectableDate(), []);
+  const [viewYear, setViewYear] = useState(initialDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initialDate.getMonth());
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
   const [selectedSlotIdx, setSelectedSlotIdx] = useState<number | null>(null);
   const [is24Hour, setIs24Hour] = useState(false);
   const [step, setStep] = useState<'calendar' | 'form' | 'confirmed'>('calendar');
 
-  // Booking form fields
+  // Booking form fields & saved bookings
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestNotes, setGuestNotes] = useState('');
+  const [bookedSlots, setBookedSlots] = useState<BookingRecord[]>([]);
+  const [copiedDetails, setCopiedDetails] = useState(false);
 
   const applyPortraitToDom = (cutoutDataUrl: string, avatarDataUrl?: string) => {
     document.querySelectorAll<HTMLImageElement>('.hero-profile-img, .mobile-hero-image').forEach((el) => {
@@ -291,33 +327,22 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.removeItem('abdullah_exact_cutout_v3');
-      localStorage.removeItem('abdullah_circular_avatar_v4');
+      [
+        'abdullah_exact_cutout_v3',
+        'abdullah_circular_avatar_v4',
+        'abdullah_me_cutout_v6',
+        'abdullah_me_avatar_v6',
+        'abdullah_me_cutout_v7',
+        'abdullah_me_avatar_v7',
+      ].forEach((k) => localStorage.removeItem(k));
     } catch {
       // Ignore storage errors
     }
 
-    const cachedCutout = (() => {
-      try {
-        return localStorage.getItem('abdullah_me_cutout_v6');
-      } catch {
-        return null;
-      }
-    })();
-    const cachedAvatar = (() => {
-      try {
-        return localStorage.getItem('abdullah_me_avatar_v6');
-      } catch {
-        return null;
-      }
-    })();
+    // Apply pre-generated cutout & circular avatar immediately so there is zero delay
+    applyPortraitToDom('./me-cutout.png?v=78769', './me-avatar.png?v=78769');
 
-    if (cachedCutout && cachedAvatar) {
-      applyPortraitToDom(cachedCutout, cachedAvatar);
-      setHasCustomPhoto(true);
-    }
-
-    // Always process /me.jpeg directly so the cutout & circular avatar are 100% accurate
+    // Also process me.jpeg directly with a cache-busting query string so any update to me.jpeg always renders fresh
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
@@ -325,13 +350,14 @@ export default function App() {
       applyPortraitToDom(cutoutUrl, avatarUrl);
       setHasCustomPhoto(true);
       try {
-        localStorage.setItem('abdullah_me_cutout_v6', cutoutUrl);
-        localStorage.setItem('abdullah_me_avatar_v6', avatarUrl);
+        localStorage.setItem('abdullah_me_cutout_v8', cutoutUrl);
+        localStorage.setItem('abdullah_me_avatar_v8', avatarUrl);
       } catch {
         // Ignore storage quota issues
       }
     };
-    img.src = meJpegUrl;
+    const sep = meJpegUrl.includes('?') ? '&' : '?';
+    img.src = `${meJpegUrl}${sep}v=78769_${Date.now()}`;
 
     // Ensure browser tab favicon logo is always rendered
     const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none"><rect width="128" height="128" rx="28" fill="#0D0D0D"/><rect x="4" y="4" width="120" height="120" rx="24" stroke="#39FF14" stroke-opacity="0.4" stroke-width="3"/><path d="M39.5 92L56.2 36H71.8L88.5 92H75.4L71.9 79.2H56.1L52.6 92H39.5ZM59.1 68.4H68.9L64 50.1L59.1 68.4Z" fill="#39FF14"/><circle cx="96" cy="36" r="10" fill="#EBEADA"/></svg>`;
@@ -346,13 +372,61 @@ export default function App() {
     iconLink.href = faviconDataUrl;
   }, []);
 
-  // Intercept clicks on all "Book a Call", "Schedule a Call", and "Let's Talk" buttons across the page
+  // Load existing bookings from localStorage + backend API
+  useEffect(() => {
+    try {
+      const localRaw = localStorage.getItem('abdullah_booked_slots_v1');
+      if (localRaw) {
+        const parsed = JSON.parse(localRaw);
+        if (Array.isArray(parsed)) setBookedSlots(parsed);
+      }
+    } catch {
+      // ignore
+    }
+
+    fetch('/api/bookings')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.bookings)) {
+          setBookedSlots((prev) => {
+            const map = new Map<string, BookingRecord>();
+            [...prev, ...data.bookings].forEach((b: BookingRecord) => {
+              if (b && b.dateKey && b.slot24) {
+                map.set(`${b.dateKey}_${b.slot24}`, b);
+              }
+            });
+            const merged = Array.from(map.values());
+            try {
+              localStorage.setItem('abdullah_booked_slots_v1', JSON.stringify(merged));
+            } catch {
+              // ignore
+            }
+            return merged;
+          });
+        }
+      })
+      .catch(() => {});
+  }, [isCalendarOpen]);
+
+  // Intercept clicks on all "Book a Call", "Schedule a Call", "Let's Talk", and Service Plan buttons across the page
   useEffect(() => {
     const openBookingModal = (e: Event) => {
       e.preventDefault();
       e.stopPropagation();
+      const target = e.currentTarget as HTMLElement | null;
+      if (target && target.classList.contains('service-price-item')) {
+        const card = target.closest('.service-card');
+        const heading = card?.querySelector('.service-card-heading')?.textContent?.trim();
+        const badge = target.textContent?.trim();
+        if (heading) {
+          setGuestNotes((prev) =>
+            prev ? prev : `Interested in ${heading}${badge ? ` (${badge})` : ''}.`
+          );
+        }
+      }
       setStep('calendar');
       setSelectedSlotIdx(null);
+      setCopiedDetails(false);
       setIsCalendarOpen(true);
     };
 
@@ -367,16 +441,9 @@ export default function App() {
     const elements: Element[] = [];
     selectors.forEach((sel) => {
       document.querySelectorAll(sel).forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-        if (
-          sel !== '.service-price-item' ||
-          text.includes('book a call') ||
-          text.includes('schedule')
-        ) {
-          (el as HTMLElement).style.cursor = 'pointer';
-          el.addEventListener('click', openBookingModal);
-          elements.push(el);
-        }
+        (el as HTMLElement).style.cursor = 'pointer';
+        el.addEventListener('click', openBookingModal);
+        elements.push(el);
       });
     });
 
@@ -384,6 +451,29 @@ export default function App() {
       elements.forEach((el) => el.removeEventListener('click', openBookingModal));
     };
   }, []);
+
+  // Lock background page scroll & pause Lenis while the booking modal is open
+  useEffect(() => {
+    const lenis = (window as unknown as { AnimationEngine?: { debug?: { state?: () => { lenis?: { stop?: () => void; start?: () => void } } } } })
+      .AnimationEngine?.debug?.state?.()?.lenis;
+
+    if (isCalendarOpen) {
+      document.body.style.overflow = 'hidden';
+      lenis?.stop?.();
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setIsCalendarOpen(false);
+      };
+      window.addEventListener('keydown', onKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        lenis?.start?.();
+        window.removeEventListener('keydown', onKeyDown);
+      };
+    } else {
+      document.body.style.overflow = '';
+      lenis?.start?.();
+    }
+  }, [isCalendarOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -398,8 +488,8 @@ export default function App() {
         applyPortraitToDom(cutoutUrl, avatarUrl);
         setHasCustomPhoto(true);
         try {
-          localStorage.setItem('abdullah_exact_cutout_v3', cutoutUrl);
-          localStorage.setItem('abdullah_circular_avatar_v4', avatarUrl);
+          localStorage.setItem('abdullah_me_cutout_v8', cutoutUrl);
+          localStorage.setItem('abdullah_me_avatar_v8', avatarUrl);
         } catch {
           // Ignore storage quota issues
         }
@@ -418,19 +508,49 @@ export default function App() {
     for (let i = 0; i < firstDayOfMonth; i++) {
       cells.push({ day: null });
     }
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(viewYear, viewMonth, d);
       const isSunday = dateObj.getDay() === 0;
-      const isPast = dateObj < startOfToday;
+      const isPastDay = dateObj < startOfToday;
+      const isTodayAfterHours =
+        dateObj.getTime() === startOfToday.getTime() && currentMinutes >= 17 * 60;
       cells.push({
         day: d,
         date: dateObj,
-        disabled: isSunday || isPast,
+        disabled: isSunday || isPastDay || isTodayAfterHours,
       });
     }
     return cells;
   }, [viewYear, viewMonth, today]);
+
+  // Determine which time slots are disabled on selectedDate (either past today or already booked)
+  const disabledSlotIndices = useMemo(() => {
+    const set = new Set<number>();
+    const selectedKey = toDateKey(selectedDate);
+    const now = new Date();
+    const isToday = toDateKey(now) === selectedKey;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    TIME_SLOTS_24H.forEach((slot24, idx) => {
+      if (isToday) {
+        const [hh, mm] = slot24.split(':').map((n) => parseInt(n, 10) || 0);
+        if (hh * 60 + mm <= currentMinutes) {
+          set.add(idx);
+        }
+      }
+      const alreadyBooked = bookedSlots.some(
+        (b) => b.dateKey === selectedKey && b.slot24 === slot24
+      );
+      if (alreadyBooked) {
+        set.add(idx);
+      }
+    });
+    return set;
+  }, [selectedDate, bookedSlots]);
 
   const handlePrevMonth = () => {
     if (viewMonth === 0) {
@@ -468,60 +588,178 @@ export default function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Compute start & end UTC timestamps (YYYYMMDDTHHmmssZ) for the selected 30m slot
+  const meetingUtcRange = useMemo(() => {
+    const slot24 = selectedSlotIdx !== null ? TIME_SLOTS_24H[selectedSlotIdx] : '09:00';
+    const [hh, mm] = slot24.split(':').map((n) => parseInt(n, 10) || 0);
+    const start = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      hh,
+      mm,
+      0
+    );
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const fmt = (d: Date) =>
+      d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    return { startUtc: fmt(start), endUtc: fmt(end) };
+  }, [selectedDate, selectedSlotIdx]);
+
+  const googleCalendarHref = useMemo(() => {
+    const title = encodeURIComponent(`30m Intro Call: ${guestName || 'Client'} × Abdullah`);
+    const details = encodeURIComponent(
+      `30-minute Intro Call with Muhammad Abdullah Khan (byabdullahkhan@gmail.com)\n\n` +
+        `Guest: ${guestName} (${guestEmail})\n` +
+        `Project Notes: ${guestNotes || 'Let’s discuss my upcoming project.'}`
+    );
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${meetingUtcRange.startUtc}/${meetingUtcRange.endUtc}&details=${details}&add=byabdullahkhan@gmail.com`;
+  }, [guestName, guestEmail, guestNotes, meetingUtcRange]);
+
+  const handleDownloadIcs = () => {
+    const safeNotes = (guestNotes || 'Let’s discuss my upcoming project.').replace(/\r?\n/g, '\\n');
+    const icsLines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//byabdullahkhan.com//Intro Call//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:REQUEST',
+      'BEGIN:VEVENT',
+      `UID:abdullah-call-${Date.now()}@byabdullahkhan.com`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
+      `DTSTART:${meetingUtcRange.startUtc}`,
+      `DTEND:${meetingUtcRange.endUtc}`,
+      `SUMMARY:30m Intro Call: ${guestName || 'Client'} x Abdullah`,
+      `DESCRIPTION:Host: Muhammad Abdullah Khan (byabdullahkhan@gmail.com)\\nGuest: ${guestName} (${guestEmail})\\nNotes: ${safeNotes}`,
+      'ORGANIZER;CN=Abdullah:mailto:byabdullahkhan@gmail.com',
+      guestEmail ? `ATTENDEE;CN=${guestName || 'Guest'};RSVP=TRUE:mailto:${guestEmail}` : '',
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter(Boolean);
+
+    const blob = new Blob([icsLines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'abdullah-intro-call.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const mailtoBookingHref = useMemo(() => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local Time';
+    const subject = encodeURIComponent(
+      `Intro Call Booking: ${guestName || 'Client'} on ${formattedSelectedDate} at ${activeSlotLabel}`
+    );
+    const body = encodeURIComponent(
+      `Hi Abdullah,\n\nI have scheduled a 30-minute Intro Call with you:\n\n` +
+        `• Name: ${guestName}\n` +
+        `• Email: ${guestEmail}\n` +
+        `• Date: ${formattedSelectedDate}\n` +
+        `• Time: ${activeSlotLabel} (${timezone})\n` +
+        `• Project Notes: ${guestNotes || 'Let’s discuss my upcoming project.'}\n\nBest regards,\n${guestName}`
+    );
+    return `mailto:byabdullahkhan@gmail.com?subject=${subject}&body=${body}`;
+  }, [guestName, guestEmail, guestNotes, formattedSelectedDate, activeSlotLabel]);
+
+  const handleCopyBookingDetails = () => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local Time';
+    const summary =
+      `30m Intro Call — Abdullah × ${guestName}\n` +
+      `Host: Abdullah (byabdullahkhan@gmail.com)\n` +
+      `Guest: ${guestName} (${guestEmail})\n` +
+      `When: ${formattedSelectedDate} at ${activeSlotLabel} (${timezone})\n` +
+      `Notes: ${guestNotes || 'Let’s discuss my upcoming project.'}`;
+    navigator.clipboard?.writeText(summary).then(() => {
+      setCopiedDetails(true);
+      setTimeout(() => setCopiedDetails(false), 2500);
+    }).catch(() => {});
+  };
+
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedSlotIdx === null) return;
     setIsSubmitting(true);
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local Time';
+    const dateKey = toDateKey(selectedDate);
+    const slot24 = TIME_SLOTS_24H[selectedSlotIdx];
+
+    const record: BookingRecord = {
+      id: `bk_${Date.now()}`,
+      name: guestName.trim(),
+      email: guestEmail.trim(),
+      notes: guestNotes.trim() || 'Let’s discuss my upcoming project.',
+      dateKey,
+      dateLabel: formattedSelectedDate,
+      slot24,
+      slotLabel: activeSlotLabel,
+      timezone,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Save locally so slot is immediately reserved
+    setBookedSlots((prev) => {
+      const next = [...prev, record];
+      try {
+        localStorage.setItem('abdullah_booked_slots_v1', JSON.stringify(next));
+      } catch {
+        // ignore quota errors
+      }
+      return next;
+    });
+
+    // 2. Persist to server endpoint (/api/bookings)
     try {
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record),
+      });
+    } catch {
+      // ignore network errors on static hosts
+    }
+
+    // 3. Best-effort background notification via FormSubmit
+    try {
+      const formData = new FormData();
+      formData.append('_subject', `New Call Booked: ${guestName} — ${formattedSelectedDate} at ${activeSlotLabel}`);
+      formData.append('Name', guestName);
+      formData.append('Email', guestEmail);
+      formData.append('Date', formattedSelectedDate);
+      formData.append('Time', `${activeSlotLabel} (${timezone})`);
+      formData.append('Project_Notes', guestNotes || 'Let’s discuss my upcoming project.');
+      formData.append('_template', 'table');
+      formData.append('_captcha', 'false');
+
       await fetch('https://formsubmit.co/ajax/byabdullahkhan@gmail.com', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({
-          _subject: `New Call Booked: ${guestName} — ${formattedSelectedDate} at ${activeSlotLabel}`,
-          Name: guestName,
-          Email: guestEmail,
-          Date: formattedSelectedDate,
-          Time: `${activeSlotLabel} (${timezone})`,
-          Project_Notes: guestNotes || 'Let’s discuss my upcoming project.',
-          _template: 'table',
-        }),
+        body: formData,
       });
     } catch {
-      // Fallback: open mail client if network blocks external request
-      window.location.href = mailtoBookingHref;
+      // ignore background email error
     } finally {
       setIsSubmitting(false);
       setStep('confirmed');
     }
   };
 
-  const mailtoBookingHref = useMemo(() => {
-    const subject = encodeURIComponent(
-      `Intro Call Booking: ${guestName || 'Client'} on ${formattedSelectedDate} at ${activeSlotLabel}`
-    );
-    const body = encodeURIComponent(
-      `Hi Abdullah,\n\nI would like to schedule a 30-minute Intro Call with you.\n\n` +
-        `• Name: ${guestName}\n` +
-        `• Email: ${guestEmail}\n` +
-        `• Date: ${formattedSelectedDate}\n` +
-        `• Time: ${activeSlotLabel}\n` +
-        `• Project Notes: ${guestNotes || 'Let’s discuss my upcoming project.'}\n\nBest regards,\n${guestName}`
-    );
-    return `mailto:byabdullahkhan@gmail.com?subject=${subject}&body=${body}`;
-  }, [guestName, guestEmail, guestNotes, formattedSelectedDate, activeSlotLabel]);
-
   return (
     <>
       {/* Cal.com-style Interactive "Book a Call / Schedule a Call" Calendar Modal */}
       {isCalendarOpen && (
         <div
+          data-lenis-prevent=""
           className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-6 overflow-y-auto"
           onClick={() => setIsCalendarOpen(false)}
         >
           <div
+            data-lenis-prevent=""
             className="relative w-full max-w-4xl rounded-2xl bg-[#111111] border border-white/15 text-white shadow-2xl overflow-hidden my-auto"
             onClick={(e) => e.stopPropagation()}
           >
@@ -535,7 +773,7 @@ export default function App() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 min-h-[470px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 min-h-[480px]">
               {/* Left Column: Host & Intro Call Details */}
               <div className="md:col-span-4 p-6 border-b md:border-b-0 md:border-r border-white/10 bg-[#161615] flex flex-col justify-between">
                 <div>
@@ -669,7 +907,7 @@ export default function App() {
                   </div>
 
                   {/* Right Column: Time Slot Picker */}
-                  <div className="md:col-span-3 p-5 flex flex-col max-h-[470px]">
+                  <div className="md:col-span-3 p-5 flex flex-col max-h-[480px]">
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-xs font-semibold text-white">
                         {selectedDate.toLocaleDateString('en-US', {
@@ -703,22 +941,41 @@ export default function App() {
                     <div className="flex-1 overflow-y-auto space-y-2 pr-1">
                       {(is24Hour ? TIME_SLOTS_24H : TIME_SLOTS_12H).map((slot, idx) => {
                         const active = selectedSlotIdx === idx;
+                        const isSlotDisabled = disabledSlotIndices.has(idx);
+                        const isBooked = bookedSlots.some(
+                          (b) =>
+                            b.dateKey === toDateKey(selectedDate) &&
+                            b.slot24 === TIME_SLOTS_24H[idx]
+                        );
                         return (
                           <button
                             key={slot}
                             type="button"
+                            disabled={isSlotDisabled}
                             onClick={() => {
+                              if (isSlotDisabled) return;
                               setSelectedSlotIdx(idx);
                               setStep('form');
                             }}
-                            className={`w-full py-2.5 px-3 rounded-lg text-xs font-medium border transition flex items-center justify-center gap-2 cursor-pointer ${
-                              active
-                                ? 'bg-[#39FF14] text-black border-[#39FF14] font-bold'
-                                : 'bg-[#181817] hover:bg-white/10 hover:border-[#39FF14]/50 border-white/10 text-white'
+                            className={`booking-slot-btn w-full py-2.5 px-3 rounded-lg text-xs font-medium transition flex items-center justify-center gap-2 ${
+                              isSlotDisabled
+                                ? 'opacity-35 cursor-not-allowed line-through'
+                                : active
+                                ? 'is-active cursor-pointer'
+                                : 'cursor-pointer'
                             }`}
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14]" />
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                isSlotDisabled ? 'bg-white/30' : 'bg-[#39FF14]'
+                              }`}
+                            />
                             <span>{slot}</span>
+                            {isBooked && (
+                              <span className="text-[10px] text-white/50 no-underline ml-1">
+                                (Booked)
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -792,14 +1049,14 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setStep('calendar')}
-                        className="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-medium text-white cursor-pointer"
+                        className="booking-secondary-btn px-4 py-2.5 rounded-lg text-xs font-medium cursor-pointer transition"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="px-5 py-2.5 rounded-lg bg-[#39FF14] hover:bg-[#32e010] disabled:opacity-60 text-xs font-bold text-black cursor-pointer shadow-lg"
+                        className="booking-primary-btn px-5 py-2.5 rounded-lg disabled:opacity-60 text-xs cursor-pointer shadow-lg transition"
                       >
                         {isSubmitting ? 'Scheduling...' : 'Schedule Call'}
                       </button>
@@ -810,53 +1067,98 @@ export default function App() {
 
               {/* Step 3: Booking Confirmed */}
               {step === 'confirmed' && (
-                <div className="md:col-span-8 p-8 flex flex-col items-center justify-center text-center space-y-4">
+                <div className="md:col-span-8 p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4">
                   <div className="w-12 h-12 rounded-full bg-[#39FF14]/15 border border-[#39FF14]/40 flex items-center justify-center text-[#39FF14]">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-white">This meeting is scheduled</h3>
                   <p className="text-xs text-white/70 max-w-md">
                     Your 30-minute Intro Call with <strong className="text-white">Abdullah</strong> (
-                    <span className="text-[#39FF14]">byabdullahkhan@gmail.com</span>) is set for{' '}
+                    <span className="text-[#39FF14]">byabdullahkhan@gmail.com</span>) is reserved for{' '}
                     <strong className="text-white">
                       {formattedSelectedDate} at {activeSlotLabel}
                     </strong>
-                    .
+                    . Add it to your calendar or send a direct confirmation below.
                   </p>
 
-                  <div className="w-full max-w-sm rounded-xl bg-[#181817] border border-white/10 p-4 text-left text-xs space-y-1.5">
-                    <div className="flex justify-between">
+                  <div className="w-full max-w-md rounded-xl bg-[#181817] border border-white/10 p-4 text-left text-xs space-y-2">
+                    <div className="flex justify-between gap-2">
                       <span className="text-white/50">Host:</span>
-                      <span className="font-medium text-white">Abdullah</span>
+                      <span className="font-medium text-white">Abdullah (byabdullahkhan@gmail.com)</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span className="text-white/50">Guest:</span>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white truncate">
                         {guestName} ({guestEmail})
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span className="text-white/50">When:</span>
                       <span className="font-medium text-[#39FF14]">
-                        {formattedSelectedDate} • {activeSlotLabel}
+                        {formattedSelectedDate} • {activeSlotLabel} (30m)
                       </span>
                     </div>
+                    {guestNotes && (
+                      <div className="pt-1.5 border-t border-white/10">
+                        <span className="text-white/50 block mb-0.5">Notes:</span>
+                        <span className="text-white/80 line-clamp-2">{guestNotes}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  {/* Primary Calendar & Notification Actions */}
+                  <div className="w-full max-w-md grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                     <a
-                      href={mailtoBookingHref}
-                      className="px-5 py-2.5 rounded-lg bg-[#39FF14] hover:bg-[#32e010] text-xs font-bold text-black flex items-center gap-2 shadow-lg"
+                      href={googleCalendarHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="booking-primary-btn px-4 py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 shadow-lg transition"
                     >
                       <CalendarIcon className="w-3.5 h-3.5" />
-                      <span>Send Confirmation Email</span>
+                      <span>Add to Google Calendar</span>
+                      <ExternalLink className="w-3 h-3 opacity-75" />
                     </a>
                     <button
                       type="button"
-                      onClick={() => setIsCalendarOpen(false)}
-                      className="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-medium text-white cursor-pointer"
+                      onClick={handleDownloadIcs}
+                      className="booking-secondary-btn px-4 py-2.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition"
                     >
-                      Done
+                      <Download className="w-3.5 h-3.5 text-[#39FF14]" />
+                      <span>Download .ics Invite</span>
+                    </button>
+                    <a
+                      href={mailtoBookingHref}
+                      className="booking-secondary-btn px-4 py-2.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-[#39FF14]" />
+                      <span>Send Email Confirmation</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleCopyBookingDetails}
+                      className="booking-secondary-btn px-4 py-2.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition"
+                    >
+                      {copiedDetails ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-[#39FF14]" />
+                          <span className="text-[#39FF14]">Copied Details!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-[#39FF14]" />
+                          <span>Copy Meeting Details</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsCalendarOpen(false)}
+                      className="px-6 py-2 rounded-lg text-xs font-medium text-white/60 hover:text-white cursor-pointer transition"
+                    >
+                      Close Window
                     </button>
                   </div>
                 </div>
