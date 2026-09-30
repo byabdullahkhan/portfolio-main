@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="560" viewBox="0 0 400 560" fill="none">
+  <defs>
+    <linearGradient id="bg_07" x1="0" y1="0" x2="400" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="55%" stop-color="#331d04"/>
+      <stop offset="100%" stop-color="#060608"/>
+    </linearGradient>
+    <radialGradient id="glow_07" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#ea580c" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardFade_07" x1="200" y1="0" x2="200" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#000000" stop-opacity="0.05"/>
+      <stop offset="85%" stop-color="#000000" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Card Background & Ambient Brand Glow -->
+  <rect width="400" height="560" rx="22" fill="url(#bg_07)"/>
+  <rect width="400" height="560" rx="22" fill="url(#glow_07)"/>
+
+  <!-- Subtle Grid Lines -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <line x1="0" y1="110" x2="400" y2="110"/>
+    <line x1="0" y1="280" x2="400" y2="280"/>
+    <line x1="0" y1="420" x2="400" y2="420"/>
+    <line x1="100" y1="0" x2="100" y2="560"/>
+    <line x1="200" y1="0" x2="200" y2="560"/>
+    <line x1="300" y1="0" x2="300" y2="560"/>
+  </g>
+
+  <!-- Top Badges Row -->
+  <rect x="22" y="22" width="44" height="28" rx="8" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.18"/>
+  <text x="44" y="41" fill="#ffffff" font-family="Arial, sans-serif" font-size="14" font-weight="800" text-anchor="middle">07</text>
+
+  <rect x="202" y="22" width="88" height="28" rx="8" fill="#ffffff" fill-opacity="0.1" stroke="#ffffff" stroke-opacity="0.15"/>
+  <text x="246" y="40" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Pizzeria</text>
+
+  <rect x="296" y="22" width="82" height="28" rx="8" fill="#f59e0b" fill-opacity="0.22" stroke="#f59e0b" stroke-opacity="0.5"/>
+  <text x="337" y="40" fill="#f59e0b" font-family="Arial, sans-serif" font-size="11" font-weight="800" text-anchor="middle">Custom Cart</text>
+
+  <!-- ==========================================
+       MULTI-DEVICE SHOWCASE (TABLET + LAPTOP + MOBILE)
+       ========================================== -->
+
+  <!-- 1. Tablet View (Right Back) -->
+  <g transform="translate(215, 118) rotate(8)">
+    <rect x="0" y="0" width="148" height="190" rx="12" fill="#0d0e12" stroke="#454956" stroke-width="3"/>
+    <rect x="7" y="9" width="134" height="172" rx="7" fill="#111015"/>
+    <rect x="14" y="18" width="60" height="8" rx="4" fill="#f59e0b"/>
+    <rect x="14" y="34" width="116" height="44" rx="6" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-opacity="0.4"/>
+    <text x="22" y="54" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="800">Crown Crust</text>
+    <text x="22" y="68" fill="#f59e0b" font-family="Arial, sans-serif" font-size="8" font-weight="700">22+ Items</text>
+    <rect x="14" y="86" width="55" height="60" rx="5" fill="#ffffff" fill-opacity="0.06"/>
+    <rect x="75" y="86" width="55" height="60" rx="5" fill="#ffffff" fill-opacity="0.06"/>
+    <rect x="14" y="154" width="116" height="18" rx="5" fill="#ea580c" fill-opacity="0.25"/>
+  </g>
+
+  <!-- 2. Laptop View (Center Main) -->
+  <g transform="translate(34, 134)">
+    <!-- Laptop Lid -->
+    <rect x="0" y="0" width="286" height="184" rx="11" fill="#0b0b0e" stroke="#3c3f4a" stroke-width="3"/>
+    <rect x="124" y="0" width="38" height="6" rx="3" fill="#1d1f26"/>
+    <!-- Laptop Screen -->
+    <rect x="8" y="9" width="270" height="166" rx="6" fill="#111015"/>
+    <!-- Mini Navbar -->
+    <rect x="8" y="9" width="270" height="22" fill="#ffffff" fill-opacity="0.04"/>
+    <circle cx="20" cy="20" r="4" fill="#f59e0b"/>
+    <text x="29" y="24" fill="#f59e0b" font-family="Arial, sans-serif" font-size="10" font-weight="900">DK'S OVEN</text>
+    <rect x="218" y="14" width="50" height="12" rx="6" fill="#f59e0b"/>
+    <!-- Mini Hero Content -->
+    <rect x="20" y="40" width="110" height="11" rx="5.5" fill="#f59e0b" fill-opacity="0.18"/>
+    <text x="26" y="48" fill="#f59e0b" font-family="Arial, sans-serif" font-size="6.5" font-weight="800">PIZZERIA • LIVE</text>
+    <text x="20" y="68" fill="#ffffff" font-family="Arial, sans-serif" font-size="13.5" font-weight="900">ARTISANAL PIZZAS & CRUSTS</text>
+    <text x="20" y="83" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="8.5" font-weight="500">Crown Crust • Seekh Kabab Crust • Wah Cantt</text>
+    <!-- Mini CTA Buttons -->
+    <rect x="20" y="92" width="68" height="16" rx="8" fill="#f59e0b"/>
+    <rect x="94" y="92" width="58" height="16" rx="8" fill="#ffffff" fill-opacity="0.1"/>
+    <!-- Mini 3 Cards Grid -->
+    <g transform="translate(20, 118)">
+      <rect x="0" y="0" width="76" height="48" rx="6" fill="#ffffff" fill-opacity="0.06" stroke="#f59e0b" stroke-opacity="0.35"/>
+      <rect x="6" y="6" width="64" height="16" rx="3" fill="#f59e0b" fill-opacity="0.25"/>
+      <text x="8" y="34" fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="800">Crown Crust</text>
+      <text x="8" y="43" fill="#f59e0b" font-family="Arial, sans-serif" font-size="7" font-weight="700">22+ Items</text>
+
+      <rect x="84" y="0" width="76" height="48" rx="6" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+      <rect x="90" y="6" width="64" height="16" rx="3" fill="#ea580c" fill-opacity="0.25"/>
+      <text x="92" y="34" fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="800">Kabab Crust</text>
+      <text x="92" y="43" fill="#ea580c" font-family="Arial, sans-serif" font-size="7" font-weight="700">4 Sizes</text>
+
+      <rect x="168" y="0" width="76" height="48" rx="6" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+      <rect x="174" y="6" width="64" height="16" rx="3" fill="#f59e0b" fill-opacity="0.2"/>
+      <text x="176" y="34" fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="800">Mughlai Pizza</text>
+      <text x="176" y="43" fill="#f59e0b" font-family="Arial, sans-serif" font-size="7" font-weight="700">DKOVEN10</text>
+    </g>
+    <!-- Laptop Metallic Base -->
+    <rect x="-16" y="182" width="318" height="10" rx="5" fill="#6b707d"/>
+    <rect x="112" y="182" width="62" height="4" rx="2" fill="#2b2d35"/>
+  </g>
+
+  <!-- 3. Mobile Phone View (Left Foreground) -->
+  <g transform="translate(22, 202) rotate(-6)">
+    <rect x="0" y="0" width="96" height="186" rx="16" fill="#090a0d" stroke="#525767" stroke-width="3"/>
+    <rect x="6" y="7" width="84" height="172" rx="12" fill="#111015"/>
+    <!-- Dynamic Island -->
+    <rect x="33" y="11" width="30" height="5" rx="2.5" fill="#000000"/>
+    <!-- Mobile Screen Content -->
+    <rect x="13" y="24" width="46" height="7" rx="3.5" fill="#f59e0b"/>
+    <rect x="13" y="37" width="70" height="42" rx="6" fill="#f59e0b" fill-opacity="0.22" stroke="#f59e0b" stroke-opacity="0.45"/>
+    <text x="19" y="54" fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="900">Crown Crust</text>
+    <text x="19" y="68" fill="#f59e0b" font-family="Arial, sans-serif" font-size="7.5" font-weight="800">22+ Items</text>
+    <rect x="13" y="86" width="70" height="38" rx="6" fill="#ffffff" fill-opacity="0.07"/>
+    <text x="19" y="103" fill="#ffffff" font-family="Arial, sans-serif" font-size="7.5" font-weight="800">Kabab Crust</text>
+    <text x="19" y="115" fill="#ea580c" font-family="Arial, sans-serif" font-size="7" font-weight="700">4 Sizes</text>
+    <rect x="13" y="131" width="70" height="36" rx="6" fill="#ffffff" fill-opacity="0.07"/>
+    <rect x="19" y="148" width="58" height="12" rx="6" fill="#f59e0b"/>
+  </g>
+
+  <!-- Bottom Gradient Overlay & Typography -->
+  <rect width="400" height="560" rx="22" fill="url(#cardFade_07)"/>
+
+  <text x="26" y="474" fill="#ffffff" font-family="Impact, Arial Black, sans-serif" font-size="34" font-weight="900" letter-spacing="0.5">DK'S OVEN</text>
+  <text x="26" y="502" fill="#d4d4d8" font-family="Arial, sans-serif" font-size="12.5" font-weight="500">Luxury Artisanal Pizzeria • Wah Cantt Rooftop</text>
+
+  <!-- Neon Green Corner Badge -->
+  <circle cx="354" cy="482" r="22" fill="#39FF14"/>
+  <path d="M347 489L361 475M361 475H349M361 475V487" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
