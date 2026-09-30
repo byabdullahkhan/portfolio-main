@@ -2844,14 +2844,14 @@ const CTAAnimation = {
   // ==========================================================================
   const ImageTrail = {
     images: [
-      "/trail/project-01.svg",
-      "/trail/project-02.svg",
-      "/trail/project-03.svg",
-      "/trail/project-04.svg",
-      "/trail/project-05.svg",
-      "/trail/project-06.svg",
-      "/trail/project-07.svg",
-      "/trail/project-08.svg"
+      "./trail/project-01.svg",
+      "./trail/project-02.svg",
+      "./trail/project-03.svg",
+      "./trail/project-04.svg",
+      "./trail/project-05.svg",
+      "./trail/project-06.svg",
+      "./trail/project-07.svg",
+      "./trail/project-08.svg"
     ],
     config: {
       wrapperSelector: '.footer-logo',
@@ -2882,7 +2882,7 @@ const CTAAnimation = {
       // Preload images
       this.images.forEach(src => {
         const img = new Image();
-        img.src = src;
+        img.onerror = function(){ if (!this.dataset.fb) { this.dataset.fb = 1; this.src = src.replace('./trail/', './public/trail/'); } }; img.src = src;
       });
 
       this.wrapper = Utils.$(this.config.wrapperSelector);
