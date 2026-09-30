@@ -296,8 +296,8 @@ const MobileMenu = {
       });
   
       const ghostElements = [
-        '.nav-logo-item .nesh-logo',
-        '.nesh-copyright-icon',
+        '.nav-logo-item .abdullah-logo',
+        '.abdullah-copyright-icon',
         '.nav-button',
         '.nav-button-secondary',
         '.nav-webflow-bg',
@@ -351,7 +351,7 @@ const MobileMenu = {
       const measurement = { real, ghost, type, settings, rRect, gRect };
 
       if (type === 'logo') {
-        const parent = real.closest('.nesh-copyright-wrap') || real.closest('.nav-button-wrap') || real.closest('.nav-logo-item') || real.parentElement;
+        const parent = real.closest('.abdullah-copyright-wrap') || real.closest('.nav-button-wrap') || real.closest('.nav-logo-item') || real.parentElement;
         measurement.parent = parent;
         measurement.parentRect = parent.getBoundingClientRect();
         measurement.computedStyle = {
@@ -393,7 +393,7 @@ const MobileMenu = {
       if (type === 'logo') {
         const { parent, parentRect, computedStyle, offsetHeight } = m;
 
-        if (!parent.classList.contains('nesh-copyright-wrap') && !parent.classList.contains('nav-button-wrap')) {
+        if (!parent.classList.contains('abdullah-copyright-wrap') && !parent.classList.contains('nav-button-wrap')) {
           parent.style.position = 'relative';
           parent.style.minHeight = offsetHeight + 'px';
           parent.style.display = 'block';
@@ -522,7 +522,7 @@ const MobileMenu = {
       // ---- Phase 1: Measure everything on a clean DOM (copyright icon handled separately) ----
       const measurements = [];
 
-      measurements.push(this.measurePair(Utils.$('.nav-logo-item .nesh-logo'), Utils.$('.nesh-logo-ghost'), 'logo'));
+      measurements.push(this.measurePair(Utils.$('.nav-logo-item .abdullah-logo'), Utils.$('.abdullah-logo-ghost'), 'logo'));
       measurements.push(this.measurePair(Utils.$('.nav-button'), Utils.$('.hero-cta-button'), 'logo'));
       measurements.push(this.measurePair(Utils.$('.nav-button-secondary'), Utils.$('.hero-button'), 'logo'));
 
@@ -546,13 +546,13 @@ const MobileMenu = {
 
       // ---- Phase 3: Copyright icon (explicit handler) ----
       // Must happen AFTER Phase 2 because the main logo animation sets
-      // .nav-logo-item to position:relative, which shifts .nesh-copyright-wrap
+      // .nav-logo-item to position:relative, which shifts .abdullah-copyright-wrap
       // (position:absolute inside .nav-logo-item). Measuring before that
       // gives wrong rRect. Also uses same scroll range as main logo (end: 50% top).
-      const crReal = Utils.$('.nesh-copyright-icon');
-      const crGhost = Utils.$('.nesh-copyright-icon-ghost');
+      const crReal = Utils.$('.abdullah-copyright-icon');
+      const crGhost = Utils.$('.abdullah-copyright-icon-ghost');
       if (crReal && crGhost) {
-        const parent = crReal.closest('.nesh-copyright-wrap');
+        const parent = crReal.closest('.abdullah-copyright-wrap');
         const gRect = crGhost.getBoundingClientRect();
         const pRect = parent.getBoundingClientRect();
         const computedWidth = window.getComputedStyle(crReal).width;
@@ -1104,11 +1104,11 @@ const Preloader = {
     // Disable preloader on mobile devices (screen width < 768px)
     if (window.innerWidth < 768) return;
     
-    const logo = Utils.$('.nesh-logo-preload-svg');
-    const wrapper = Utils.$('.nesh-logo-wrap');
+    const logo = Utils.$('.abdullah-logo-preload-svg');
+    const wrapper = Utils.$('.abdullah-logo-wrap');
     if (!logo || !wrapper) return;
 
-    const letters = Utils.$$('.nesh-logo-letter');
+    const letters = Utils.$$('.abdullah-logo-letter');
     const navContainer = Utils.$('.nav-container');
     // .profile-img-wrap has an inverse-scale applied by Sidebar.scale(), so we
     // animate the inner .profile-img-item to avoid fighting that transform.
@@ -1122,7 +1122,7 @@ const Preloader = {
     const heroHeading = Utils.$('.hero-heading');
     const navButton = Utils.$('.nav-button');
     const navButtonSecondary = Utils.$('.nav-button-secondary');
-    // Captures .nav-logo-item which contains both the real nav logo (.nesh-logo)
+    // Captures .nav-logo-item which contains both the real nav logo (.abdullah-logo)
     // and copyright wrap. Both are FLIP'd by GhostEngine to hero ghost positions,
     // so they'd flash visible if nav-container is shown before preloader logo hides.
     const navLogoItem = Utils.$('.nav-logo-item');
@@ -2901,7 +2901,7 @@ const CTAAnimation = {
       Utils.addEvent(this.wrapper, 'mousemove', this.handleMouseMove.bind(this));
       Utils.addEvent(this.wrapper, 'mouseleave', this.handleMouseLeave.bind(this));
 
-      console.log('✓ NESH Image Trail initialized');
+      console.log('✓ ABDULLAH Image Trail initialized');
     },
 
     getSVGCoords(e) {
@@ -3289,7 +3289,7 @@ const ResizeHandler = {
     }
   };
   
-  const __runNeshLoad = () => {
+  const __runAbdullahLoad = () => {
     window.scrollTo(0, 0);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -3300,9 +3300,9 @@ const ResizeHandler = {
     });
   };
   if (document.readyState === 'complete') {
-    __runNeshLoad();
+    __runAbdullahLoad();
   } else {
-    window.addEventListener('load', __runNeshLoad);
+    window.addEventListener('load', __runAbdullahLoad);
   }
 
   // Handle Safari bfcache — page restored from back/forward navigation
