@@ -570,3 +570,25 @@ html, body {
 .button-text {
   white-space: nowrap !important;
 }
+
+/* Fix Selected Work / Projects card height on mobile & desktop so cards never collapse */
+.work-card {
+  aspect-ratio: 5 / 7 !important;
+  min-height: clamp(23.8rem, 37.8vw, 42rem);
+  flex-shrink: 0 !important;
+}
+.work-image {
+  aspect-ratio: 5 / 7 !important;
+  display: block !important;
+}
+@media screen and (max-width: 767px) {
+  .work-card {
+    aspect-ratio: 5 / 7 !important;
+    min-height: clamp(23.14rem, 115.7vw, 55.4rem) !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+  }
+  .work-track-wrap {
+    min-height: clamp(23.5rem, 117vw, 56rem) !important;
+  }
+}
