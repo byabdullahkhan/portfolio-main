@@ -688,3 +688,24 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   SCROLL PERFORMANCE & GPU COMPOSITOR OPTIMIZATION
+   ========================================================================== */
+.profile-img-wrap {
+  contain: layout paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.work-card {
+  contain: layout paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.device-unit {
+  will-change: auto;
+}
+.work-card:hover .device-unit {
+  will-change: transform, opacity, z-index;
+}
+
+

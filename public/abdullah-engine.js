@@ -1034,6 +1034,7 @@ const HorizontalScroll = {
   
       this.elements.forEach(config => {
         this.elementStates[config.selector] = 'light';
+        config.el = Utils.$(config.selector);
       });
   
       darkSections.forEach(section => {
@@ -1050,12 +1051,15 @@ const HorizontalScroll = {
   
     checkOverlaps(section) {
       const sectionRect = section.getBoundingClientRect();
+      const navRects = this.elements.map(config => {
+        const navEl = config.el || (config.el = Utils.$(config.selector));
+        return navEl ? navEl.getBoundingClientRect() : null;
+      });
 
-      this.elements.forEach(config => {
-        const navEl = Utils.$(config.selector);
-        if (!navEl) return;
+      this.elements.forEach((config, idx) => {
+        const navRect = navRects[idx];
+        if (!navRect) return;
 
-        const navRect = navEl.getBoundingClientRect();
         const currentState = this.elementStates[config.selector];
 
         let overlaps;
@@ -1412,11 +1416,15 @@ const MagneticPositions = {
         originConfig: originConfig.toLowerCase(),
         anchorConfig: anchorConfig.toLowerCase(),
         offsetX: this.parseUnit(rawX),
-        offsetY: this.parseUnit(rawY)
+        offsetY: this.parseUnit(rawY),
+        currentX: 0,
+        currentY: 0,
+        visible: false
       });
-  
+
       target.style.willChange = 'transform';
     });
+    this._rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   },
 
   rebuildPairs() {
@@ -1449,7 +1457,7 @@ const MagneticPositions = {
       case '%': return (value / 100) * ref;
       case 'vw': return (value / 100) * window.innerWidth;
       case 'vh': return (value / 100) * window.innerHeight;
-      case 'rem': return value * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      case 'rem': return value * (this._rootFontSize || 16);
       default: return value;
     }
   },
@@ -1467,16 +1475,30 @@ const MagneticPositions = {
   },
 
   positionAllOnce() {
+    this._rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+    // Phase 1: Reset transforms in batch
     this.pairs.forEach(pair => {
-      const { target, anchor, originConfig, anchorConfig, offsetX, offsetY } = pair;
+      if (pair.target && pair.anchor) {
+        pair.target.style.transform = 'none';
+      }
+    });
 
-      if (!target || !anchor) return;
+    // Phase 2: Read all bounding rects in batch (single reflow)
+    const rects = this.pairs.map(pair => {
+      if (!pair.target || !pair.anchor) return null;
+      return {
+        targetRect: pair.target.getBoundingClientRect(),
+        anchorRect: pair.anchor.getBoundingClientRect()
+      };
+    });
 
-      target.style.transform = 'none';
-      target.offsetHeight;
-
-      const targetRect = target.getBoundingClientRect();
-      const anchorRect = anchor.getBoundingClientRect();
+    // Phase 3: Write all transforms in batch
+    this.pairs.forEach((pair, idx) => {
+      const r = rects[idx];
+      if (!r) return;
+      const { target, originConfig, anchorConfig, offsetX, offsetY } = pair;
+      const { targetRect, anchorRect } = r;
 
       const anchorPoint = this.getPoint(anchorRect, anchorConfig);
       const originPoint = this.getPoint(targetRect, originConfig);
@@ -1487,58 +1509,94 @@ const MagneticPositions = {
       const finalX = Math.round((anchorPoint.x - originPoint.x + offX) * 100) / 100;
       const finalY = Math.round((anchorPoint.y - originPoint.y + offY) * 100) / 100;
 
+      pair.currentX = finalX;
+      pair.currentY = finalY;
+      pair.visible = true;
       target.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
       target.style.visibility = 'visible';
       target.style.opacity = '1';
     });
+
+    this._needsUpdateFrames = 30;
   },
 
   updateAll() {
-    this.pairs.forEach(pair => this.updatePairDesktop(pair));
-  },
+    const vh = window.innerHeight;
 
-  updatePairDesktop(pair) {
-    const { target, anchor, originConfig, anchorConfig, offsetX, offsetY } = pair;
+    // Phase 1: Batch all DOM rect reads (zero layout thrashing)
+    const measurements = [];
+    for (let i = 0; i < this.pairs.length; i++) {
+      const pair = this.pairs[i];
+      if (!pair.target || !pair.anchor) {
+        measurements.push(null);
+        continue;
+      }
+      const anchorRect = pair.anchor.getBoundingClientRect();
+      // Skip off-screen elements far outside the viewport
+      if (anchorRect.bottom < -600 || anchorRect.top > vh + 600) {
+        measurements.push(null);
+        continue;
+      }
+      const targetRectRaw = pair.target.getBoundingClientRect();
+      measurements.push({ anchorRect, targetRectRaw });
+    }
 
-    if (!target || !anchor) return;
+    // Phase 2: Batch all DOM style writes (only when position changed)
+    for (let i = 0; i < this.pairs.length; i++) {
+      const m = measurements[i];
+      if (!m) continue;
+      const pair = this.pairs[i];
+      const { target, originConfig, anchorConfig, offsetX, offsetY, currentX, currentY } = pair;
+      const { anchorRect, targetRectRaw } = m;
 
-    const matrix = new DOMMatrix(getComputedStyle(target).transform);
-    const currentX = matrix.m41 || 0;
-    const currentY = matrix.m42 || 0;
+      const baseRect = {
+        left: targetRectRaw.left - currentX,
+        top: targetRectRaw.top - currentY,
+        width: targetRectRaw.width,
+        height: targetRectRaw.height,
+        right: targetRectRaw.right - currentX,
+        bottom: targetRectRaw.bottom - currentY
+      };
 
-    const targetRectRaw = target.getBoundingClientRect();
-    const anchorRect = anchor.getBoundingClientRect();
+      const anchorPoint = this.getPoint(anchorRect, anchorConfig);
+      const originPoint = this.getPoint(baseRect, originConfig);
 
-    const baseRect = {
-      left: targetRectRaw.left - currentX,
-      top: targetRectRaw.top - currentY,
-      width: targetRectRaw.width,
-      height: targetRectRaw.height,
-      right: targetRectRaw.right - currentX,
-      bottom: targetRectRaw.bottom - currentY
-    };
+      const offX = this.toPx(offsetX, baseRect.width);
+      const offY = this.toPx(offsetY, baseRect.height);
 
-    const anchorPoint = this.getPoint(anchorRect, anchorConfig);
-    const originPoint = this.getPoint(baseRect, originConfig);
+      const finalX = Math.round((anchorPoint.x - originPoint.x + offX) * 100) / 100;
+      const finalY = Math.round((anchorPoint.y - originPoint.y + offY) * 100) / 100;
 
-    const offX = this.toPx(offsetX, baseRect.width);
-    const offY = this.toPx(offsetY, baseRect.height);
-
-    const finalX = Math.round((anchorPoint.x - originPoint.x + offX) * 100) / 100;
-    const finalY = Math.round((anchorPoint.y - originPoint.y + offY) * 100) / 100;
-
-    target.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
-    target.style.visibility = 'visible';
-    target.style.opacity = '1';
+      if (Math.abs(finalX - currentX) > 0.05 || Math.abs(finalY - currentY) > 0.05 || !pair.visible) {
+        pair.currentX = finalX;
+        pair.currentY = finalY;
+        target.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
+        if (!pair.visible) {
+          pair.visible = true;
+          target.style.visibility = 'visible';
+          target.style.opacity = '1';
+        }
+      }
+    }
   },
 
   startLoop() {
     if (this.isRunning) return;
     this.isRunning = true;
+    this._lastScrollY = -1;
+    this._needsUpdateFrames = 30;
 
     const loop = () => {
       if (!this.isRunning) return;
-      this.updateAll();
+      const sy = window.scrollY || window.pageYOffset || 0;
+      if (sy !== this._lastScrollY) {
+        this._lastScrollY = sy;
+        this._needsUpdateFrames = 15;
+        this.updateAll();
+      } else if (this._needsUpdateFrames > 0) {
+        this._needsUpdateFrames--;
+        this.updateAll();
+      }
       this.rafId = requestAnimationFrame(loop);
     };
 
@@ -2043,10 +2101,15 @@ const CardInteractions = {
       };
   
       const elementPercent = 0.50;
+      let thresholdY = (hero.offsetTop || 0) + (hero.offsetHeight || window.innerHeight * 3) * elementPercent;
+      Utils.addEvent(window, 'resize', () => {
+        thresholdY = (hero.offsetTop || 0) + (hero.offsetHeight || window.innerHeight * 3) * elementPercent;
+      }, { passive: true });
   
       const handleScroll = () => {
-        const heroRect = hero.getBoundingClientRect();
-        const hasPassed = (heroRect.top + heroRect.height * elementPercent) <= 0;
+        const sy = window.scrollY || window.pageYOffset || 0;
+        const hasPassed = sy >= thresholdY;
+        if (hasPassed === this.isMoved) return;
   
         if (hasPassed && !this.isMoved) {
           const rect = profileWrap.getBoundingClientRect();
@@ -2888,10 +2951,10 @@ const CTAAnimation = {
       const chars = target.querySelectorAll('.anim-char');
   
       gsap.fromTo(chars,
-        { color: '#E0DFC5', filter: 'blur(0px)', opacity: 0.1, y: 5 },
+        { color: '#E0DFC5', opacity: 0.1, y: 5 },
         {
-          color: 'black', filter: 'blur(0px)', opacity: 1, y: 0,
-          force3D: true, duration: 0.5, stagger: 0.1, ease: 'power1.out',
+          color: 'black', opacity: 1, y: 0,
+          duration: 0.5, stagger: 0.1, ease: 'power1.out',
           scrollTrigger: {
             trigger: target,
             start: 'top 92%',
