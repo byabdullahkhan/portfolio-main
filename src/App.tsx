@@ -780,7 +780,7 @@ export default function App() {
                   <div className="flex items-center gap-3 mb-4">
                     <img
                       src={avatarSrc}
-                      alt="Abdullah"
+                      alt="Muhammad Abdullah Khan — Custom Web Developer & Technical SEO Specialist"
                       className="w-11 h-11 rounded-full object-cover bg-[#565653] border border-white/15"
                     />
                     <div>
