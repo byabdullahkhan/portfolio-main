@@ -312,6 +312,9 @@ const MobileMenu = {
         const el = Utils.$(sel);
         if (el) gsap.set(el, { clearProps: 'all' });
       });
+
+      const navLogoItem = Utils.$('.nav-logo-item');
+      if (navLogoItem) gsap.set(navLogoItem, { clearProps: 'minHeight,display' });
   
       Utils.$$('.hero-navigation-link').forEach(el => {
         gsap.set(el, { clearProps: 'all' });
@@ -399,8 +402,8 @@ const MobileMenu = {
           parent.style.display = 'block';
         }
 
-        xDiff = Math.round((gRect.left - parentRect.left) / STATE.sidebarScale);
-        yDiff = Math.round((gRect.top - parentRect.top) / STATE.sidebarScale);
+        xDiff = (gRect.left - parentRect.left) / STATE.sidebarScale;
+        yDiff = (gRect.top - parentRect.top) / STATE.sidebarScale;
 
         vars.width = (gRect.width / STATE.sidebarScale) + 'px';
         vars.height = (gRect.height / STATE.sidebarScale) + 'px';
@@ -559,8 +562,8 @@ const MobileMenu = {
         const computedHeight = window.getComputedStyle(crReal).height;
 
         gsap.fromTo(crReal, {
-          x: Math.round((gRect.left - pRect.left) / STATE.sidebarScale),
-          y: Math.round((gRect.top - pRect.top) / STATE.sidebarScale),
+          x: (gRect.left - pRect.left) / STATE.sidebarScale,
+          y: (gRect.top - pRect.top) / STATE.sidebarScale,
           width: (gRect.width / STATE.sidebarScale) + 'px',
           height: (gRect.height / STATE.sidebarScale) + 'px',
           position: 'absolute',
@@ -580,7 +583,7 @@ const MobileMenu = {
           scrollTrigger: {
             trigger: '.hero',
             start: 'top top',
-            end: '50% top',
+            end: '44% top',
             scrub: 1
           }
         });
@@ -1184,7 +1187,7 @@ const Preloader = {
     // preloader logo hides — a clean handoff.
     this.timeline.set(navContainer, { autoAlpha: 1 }, 1.4);
     this.timeline.set(logo, { display: 'none' }, 2);
-    if (navLogoItem) this.timeline.set(navLogoItem, { display: navLogoItemDisplay }, 2);
+    if (navLogoItem) this.timeline.set(navLogoItem, { display: 'block' }, 2);
 
     // Mask-wrap each nav link for y-reveal (no opacity)
     const navLinkInners = [];
@@ -3358,6 +3361,16 @@ const ResizeHandler = {
 
     safeInit(() => Sidebar.init());
     safeInit(() => GhostEngine.init());
+    const navLogoEl = Utils.$('.nav-logo');
+    if (navLogoEl) {
+      Utils.addEvent(navLogoEl, 'click', () => {
+        if (STATE.lenis) {
+          STATE.lenis.scrollTo(0);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    }
     safeInit(() => StyleEngine.init());
     safeInit(() => HorizontalScroll.init());
     safeInit(() => ThemeSwitcher.init());

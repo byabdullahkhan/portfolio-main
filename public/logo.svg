@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
   <rect width="512" height="512" rx="112" fill="#0D0D0D"/>
-  <rect x="12" y="12" width="488" height="488" rx="100" stroke="#39FF14" stroke-opacity="0.4" stroke-width="6"/>
-  <path d="M122 366L188 146H250L316 366H264L250 315H188L174 366H122ZM200 272H238L219 201L200 272Z" fill="#EBEADA"/>
-  <path d="M332 146H380V236L446 146H502L424 246L506 366H448L388 276L380 286V366H332V146Z" fill="#39FF14" transform="translate(-36, 0) scale(0.88)"/>
-  <circle cx="396" cy="148" r="28" fill="#39FF14"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" stroke="#39FF14" stroke-opacity="0.4" stroke-width="10"/>
+  <path d="M144 376L214 136H282L352 376H296.8L282 322H214L199.2 376H144ZM226.4 276H269.6L248 196L226.4 276Z" fill="#39FF14" fill-rule="evenodd"/>
+  <circle cx="384" cy="152" r="40" stroke="#39FF14" stroke-width="10"/>
+  <path d="M371.2 168V136H386C392.8 136 396.8 139.6 396.8 145.6C396.8 150 394 153.2 389.6 154.4L397.6 168H389.2L382.4 155.2H378.8V168H371.2ZM378.8 149.2H385.2C387.6 149.2 389.2 148 389.2 145.6C389.2 143.2 387.6 142 385.2 142H378.8V149.2Z" fill="#39FF14" fill-rule="evenodd"/>
 </svg>
