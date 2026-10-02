@@ -346,18 +346,6 @@ export default function App() {
     // Apply pre-generated cutout & circular avatar immediately with zero main-thread canvas blocking
     applyPortraitToDom('./me-cutout.png?v=78769', './me-avatar.png?v=78769');
     setHasCustomPhoto(true);
-
-    // Ensure browser tab favicon logo is always rendered
-    const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none"><rect width="128" height="128" rx="28" fill="#0D0D0D"/><rect x="4" y="4" width="120" height="120" rx="24" stroke="#39FF14" stroke-opacity="0.4" stroke-width="3"/><path d="M39.5 92L56.2 36H71.8L88.5 92H75.4L71.9 79.2H56.1L52.6 92H39.5ZM59.1 68.4H68.9L64 50.1L59.1 68.4Z" fill="#39FF14"/><circle cx="96" cy="36" r="10" fill="#EBEADA"/></svg>`;
-    const faviconDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(faviconSvg)}`;
-    let iconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (!iconLink) {
-      iconLink = document.createElement('link');
-      iconLink.rel = 'icon';
-      document.head.appendChild(iconLink);
-    }
-    iconLink.type = 'image/svg+xml';
-    iconLink.href = faviconDataUrl;
   }, []);
 
   // Load existing bookings from localStorage + backend API
