@@ -1,5 +1,12 @@
 User-agent: *
 Allow: /
 
+User-agent: Google-Favicon
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
 Host: https://byabdullahkhan.com
 Sitemap: https://byabdullahkhan.com/sitemap.xml
+
