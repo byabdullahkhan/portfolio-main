@@ -305,16 +305,34 @@ export default function App() {
   const [copiedDetails, setCopiedDetails] = useState(false);
 
   const applyPortraitToDom = (cutoutDataUrl: string, avatarDataUrl?: string) => {
-    document.querySelectorAll<HTMLImageElement>('.hero-profile-img, .mobile-hero-image').forEach((el) => {
-      el.src = cutoutDataUrl;
+    const isCustom = cutoutDataUrl.startsWith('data:image/');
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const targetDeskCutout = isCustom ? cutoutDataUrl : '/me-cutout.webp';
+    const targetMobileCutout = isCustom ? cutoutDataUrl : '/me-cutout-mobile.webp';
+
+    document.querySelectorAll<HTMLImageElement>('.hero-profile-img').forEach((el) => {
+      if (el.getAttribute('src') !== targetDeskCutout) {
+        el.src = targetDeskCutout;
+      }
       el.removeAttribute('srcset');
     });
+
+    document.querySelectorAll<HTMLImageElement>('.mobile-hero-image').forEach((el) => {
+      if (el.getAttribute('src') !== targetMobileCutout) {
+        el.src = targetMobileCutout;
+      }
+      el.removeAttribute('srcset');
+    });
+
     if (avatarDataUrl) {
       setAvatarSrc(avatarDataUrl);
+      const targetAvatar = avatarDataUrl.startsWith('data:image/') ? avatarDataUrl : '/me-avatar.webp';
       document
         .querySelectorAll<HTMLImageElement>('.cta_img, .is-profile-avatar')
         .forEach((el) => {
-          el.src = avatarDataUrl;
+          if (el.getAttribute('src') !== targetAvatar) {
+            el.src = targetAvatar;
+          }
           el.removeAttribute('srcset');
         });
     }
@@ -343,8 +361,8 @@ export default function App() {
       // Ignore storage errors
     }
 
-    // Apply pre-generated cutout & circular avatar immediately with zero main-thread canvas blocking
-    applyPortraitToDom('./me-cutout.png?v=78769', './me-avatar.png?v=78769');
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    applyPortraitToDom(isMobile ? '/me-cutout-mobile.webp' : '/me-cutout.webp', '/me-avatar.webp');
     setHasCustomPhoto(true);
   }, []);
 
