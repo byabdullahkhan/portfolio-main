@@ -70,3 +70,29 @@
 #root .booking-secondary-btn:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.16) !important;
 }
+
+/* Crisp rendering rules for Calendly Modal and Iframe (prevents GPU raster blur) */
+.calendly-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.92);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.calendly-frame-container {
+  transform: none !important;
+  -webkit-transform: none !important;
+  will-change: auto !important;
+  contain: layout style;
+}
+
+.calendly-iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  display: block !important;
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  image-rendering: -webkit-optimize-contrast;
+}
