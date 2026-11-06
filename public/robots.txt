@@ -10,3 +10,7 @@ Allow: /
 Host: https://byabdullahkhan.com
 Sitemap: https://byabdullahkhan.com/sitemap.xml
 
+# LLM & AI Search Documentation
+# https://llmstxt.org/
+# llms.txt: https://byabdullahkhan.com/llms.txt
+# llms-full.txt: https://byabdullahkhan.com/llms-full.txt

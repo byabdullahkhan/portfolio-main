@@ -1,0 +1,136 @@
+# Muhammad Abdullah Khan — Complete Professional Profile & Technical Documentation (Taxila, Pakistan)
+
+> Full technical brief, organizational context, service capabilities, portfolio case studies, and engineering architecture for Muhammad Abdullah Khan (byabdullahkhan.com).
+
+## 1. Executive Summary & Brand Identity
+
+- **Legal Entity / Founder:** Muhammad Abdullah Khan
+- **Brand Name:** Muhammad Abdullah Khan — Custom Web & SEO Specialist
+- **Headquarters / Base of Operations:** Taxila, Punjab, Pakistan (Postal Code: 47080, Rawalpindi District)
+- **Primary Website:** https://byabdullahkhan.com/
+- **Creator Project:** TestCraft AI (https://testcraftai.online/)
+- **Contact Email:** byabdullahkhan@gmail.com
+- **Scheduling / Direct Consultations:** https://calendly.com/byabdullahkhan/book_and_discuss
+- **Profiles:**
+  - Instagram: https://www.instagram.com/byabdullahkhan/
+  - GitHub: https://github.com/byabdullahkhan
+
+### Local Context (Taxila & Greater Islamabad/Rawalpindi)
+Muhammad Abdullah Khan operates out of the historic and technological corridor of Taxila (adjoining Wah Cantt and the twin cities of Rawalpindi and Islamabad, Pakistan). He provides regional Pakistani enterprises, local restaurants, educational academies, and industrial institutions with high-standard, international-grade web platforms. Concurrently, he serves an extensive portfolio of overseas clients in the United Kingdom, United States, and UAE, delivering Western enterprise-level custom development at competitive, direct-to-expert agility.
+
+---
+
+## 2. Core Service Offerings & Engineering Scope
+
+### A. Custom Web Development & Front-End Architecture
+- Architecture: Component-driven development using React, Next.js, modern TypeScript, and Tailwind CSS.
+- Semantic HTML5 structure engineered for assistive technologies, accessibility (WCAG 2.1 AA), and zero-friction crawler indexation.
+- Mobile-first, fully responsive layouts calibrated across mobile phones, tablets, foldables, laptops, and ultra-wide displays.
+- Asset optimization pipelines (WebP/AVIF next-gen images, dynamic SVGs, aggressive pre-caching, tree-shaken CSS).
+
+### B. Webflow CMS & No-Code Scalability
+- Pixel-perfect conversion of complex design mockups into manageable Webflow projects.
+- Structured CMS schemas allowing non-technical marketing and operations teams to publish content without developer dependencies.
+- Custom Webflow code enhancements (API hooks, interactive filters, custom forms, payment gateways).
+
+### C. Technical SEO & Core Web Vitals Optimization
+- Target metrics: Largest Contentful Paint (LCP) < 1.2s, Interaction to Next Paint (INP) < 100ms, Cumulative Layout Shift (CLS) = 0.
+- Advanced Schema.org structured data (Organization, Person, ProfessionalService, WebSite, SoftwareApplication, AggregateRating, Review).
+- Crawl budget optimization, clean XML sitemaps, robots.txt directives, canonical tag integrity, and international targeting tags.
+- Local SEO foundations for Taxila, Wah Cantt, Rawalpindi, Islamabad, and specialized cross-border targeting for UK B2B search terms.
+
+### D. Interactive 3D & GSAP Motion Design
+- Hardware-accelerated GSAP (GreenSock) animations and ScrollTrigger timelines.
+- Interactive device mockups, interactive 3D product cards, and smooth Lenis scrolling engines.
+- Micro-interactions that reinforce user trust and elevate perception of premium brand craftsmanship.
+
+### E. Conversion Rate Optimization (CRO) & Full-Funnel Growth
+- Landing page wireframing based on cognitive psychology and clear value propositions.
+- Strategic call-to-action (CTA) positioning, friction-free booking integrations via Calendly, and direct WhatsApp sales funnels for local commerce.
+
+---
+
+## 3. Notable Client Projects & Case Studies
+
+### 1. TestCraft AI (https://testcraftai.online/)
+- **Category:** Educational SaaS / AI Examination Platform
+- **Role:** Sole Architect, Front-End Engineer & Product Designer
+- **Description:** Designed and engineered a full-featured online assessment suite. Features automated MCQ generators, multi-select questions, subjective AI evaluation for descriptive essays, and no-login student exam links distributed via WhatsApp or LMS.
+- **Key Impact:** Eliminates manual teacher grading hours while providing students with instant, constructive AI diagnostic feedback and automated PDF marksheets.
+
+### 2. BuildCore UK
+- **Category:** Commercial Construction & Building Services
+- **Market:** United Kingdom
+- **Results:** Transformed online presence in the UK construction sector, securing first-page organic rankings for high-intent commercial terms and driving high-value enterprise quotes weekly.
+
+### 3. ChemNova UK
+- **Category:** Industrial Chemical Manufacturing & Laboratory Synthesis
+- **Market:** United Kingdom
+- **Results:** Built an ISO-17025 accredited chemical catalog platform featuring real-time spectroscopy data interfaces, automated batch SDS downloads, and an authoritative B2B inquiry pipeline that doubled quote requests within 60 days.
+
+### 4. DK's Oven (Wah Cantt / Taxila)
+- **Category:** Food & Beverage / Wood-Fired Pizza
+- **Features:** Interactive custom crust and topping selectors, instant WhatsApp cart checkout, responsive digital menu layout.
+
+### 5. Hot N Spicy (Wah Cantt / Taxila)
+- **Category:** Food & Beverage / Authentic Charcoal BBQ & Karahi
+- **Features:** High-speed mobile-first menu filtering, dynamic categories, frictionless telephone and WhatsApp ordering.
+
+### 6. Burger In Town
+- **Category:** Fast-Casual Dining
+- **Features:** 3D interactive menu cards, visual product storytelling, direct conversion mechanics resulting in measurable delivery growth.
+
+---
+
+## 4. Organization & Business Schema Summary
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://byabdullahkhan.com/#organization",
+  "name": "Muhammad Abdullah Khan — Custom Web Development & SEO",
+  "alternateName": [
+    "Muhammad Abdullah Khan",
+    "byabdullahkhan",
+    "Abdullah Khan Web Developer Taxila",
+    "TestCraft AI"
+  ],
+  "url": "https://byabdullahkhan.com/",
+  "logo": "https://byabdullahkhan.com/favicon-512x512.png",
+  "image": "https://byabdullahkhan.com/favicon-512x512.png",
+  "email": "byabdullahkhan@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Taxila",
+    "addressRegion": "Punjab",
+    "postalCode": "47080",
+    "addressCountry": "PK"
+  },
+  "founder": {
+    "@type": "Person",
+    "@id": "https://byabdullahkhan.com/#person",
+    "name": "Muhammad Abdullah Khan",
+    "jobTitle": "Custom Web Developer & Technical SEO Specialist"
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Taxila" },
+    { "@type": "City", "name": "Wah Cantt" },
+    { "@type": "City", "name": "Rawalpindi" },
+    { "@type": "City", "name": "Islamabad" },
+    { "@type": "Country", "name": "United Kingdom" },
+    { "@type": "Country", "name": "United States" },
+    { "@type": "Country", "name": "Pakistan" },
+    { "@type": "Country", "name": "United Arab Emirates" },
+    "Worldwide"
+  ]
+}
+```
+
+---
+
+## 5. Engagement Models & How to Work Together
+
+1. **Direct Discovery & Booking:** Clients can schedule a 30-minute consultation directly via [Calendly](https://calendly.com/byabdullahkhan/book_and_discuss) without phone tag.
+2. **Project-Based Scoping:** Fixed-scope delivery for website redesigns, new product launches, or Webflow CMS setups.
+3. **Monthly Retainer Collaboration:** Dedicated technical capacity for continuous SEO audits, performance enhancements, conversion optimization, and custom software feature additions.

@@ -1,0 +1,43 @@
+# Muhammad Abdullah Khan — Custom Web & SEO Specialist (Taxila)
+
+> Custom Web Developer & Technical SEO Specialist based in Taxila, Pakistan, engineering high-converting custom websites, Webflow CMS builds, full-stack applications, and technical organic growth architectures for businesses in Taxila, Rawalpindi/Islamabad, the UK, US, UAE, and worldwide.
+
+## Quick Facts
+- **Name:** Muhammad Abdullah Khan
+- **Primary Domain:** [byabdullahkhan.com](https://byabdullahkhan.com/)
+- **Location:** Taxila, Punjab, Pakistan (Postal Code: 47080, Rawalpindi District)
+- **Flagship Project:** [TestCraft AI](https://testcraftai.online/) (AI-powered online test builder & automated theory evaluation engine)
+- **Core Specialties:** Custom Web Development, Webflow CMS Architecture, Technical SEO, Core Web Vitals Optimization, Conversion Rate Optimization (CRO), Full-Funnel Digital Marketing
+- **Service Reach:** Taxila & Wah Cantt, Islamabad-Rawalpindi Metropolitan Area, United Kingdom (B2B & Construction), United States, UAE, and Worldwide
+- **Booking & Consultation:** [Calendly Call](https://calendly.com/byabdullahkhan/book_and_discuss)
+- **Direct Contact:** [byabdullahkhan@gmail.com](mailto:byabdullahkhan@gmail.com)
+
+## Core Capabilities & Services
+
+- [Custom Web Development](https://byabdullahkhan.com/#overview): Bespoke, performant, mobile-first websites built with modern web technologies (React, Next.js, TypeScript, Tailwind CSS, clean semantic HTML5) tailored to brand identity.
+- [Webflow & Scalable CMS Architecture](https://byabdullahkhan.com/#services): Fast, responsive, client-friendly CMS setups that enable non-technical teams to manage blogs, portfolios, dynamic landing pages, and service catalogs effortlessly.
+- [Technical SEO & Core Web Vitals](https://byabdullahkhan.com/#overview): Semantic schema markup, ultra-fast TTFB, perfect PageSpeed scores, zero cumulative layout shift (CLS), indexation auditing, and structured data hierarchy.
+- [Interactive GSAP & Motion Experience](https://byabdullahkhan.com/#overview): Hardware-accelerated 60fps animations, interactive product showcases, and micro-interactions that elevate brand credibility without sacrificing performance.
+- [Full-Funnel CRO & Landing Pages](https://byabdullahkhan.com/#webflow_journey): High-conversion lead generation systems designed to turn paid and organic visitors into paying customers.
+
+## Featured Portfolio & Client Work
+
+- [TestCraft AI](https://testcraftai.online/): Automated online examination platform engineered by Muhammad Abdullah Khan featuring instant MCQ generation, multi-select questions, subjective AI theory evaluation, and zero-login student links via WhatsApp.
+- **BuildCore UK**: Commercial construction engineering platform in the United Kingdom built with rapid page load speeds, high authority B2B presentation, and search visibility across UK target keywords.
+- **ChemNova UK**: B2B chemical manufacturing and ISO-17025 precision synthesis catalog built for enterprise buyers, featuring live spectroscopy telemetry displays and SDS documentation.
+- **DK's Oven**: Artisanal pizza restaurant and ordering portal based in Wah Cantt / Taxila with live interactive menu customizations and direct WhatsApp checkout routing.
+- **Burger In Town**: Fast-casual restaurant branding and 3D interactive menu cards that significantly boosted direct online delivery inquiries.
+- **Hot N Spicy**: Authentic charcoal BBQ, Karahi, and dining ordering interface in Wah Cantt / Taxila featuring live category filters and instant mobile ordering.
+
+## Service Packages & Engagement Models
+
+- **Starter Build**: Fast, clean, responsive Webflow or custom website (up to 6 core pages, CMS configuration, on-page technical SEO, mobile perfection).
+- **Custom Project**: Bespoke web applications, dynamic interactions, third-party API integrations, and comprehensive SEO strategies.
+- **Ongoing Growth & Maintenance Retainer**: Continuous technical SEO auditing, performance tuning, conversion testing, page additions, and dedicated engineering support.
+
+## Contact & Social Links
+- **Website:** https://byabdullahkhan.com/
+- **Book a Call:** https://calendly.com/byabdullahkhan/book_and_discuss
+- **Email:** byabdullahkhan@gmail.com
+- **Instagram:** https://www.instagram.com/byabdullahkhan/
+- **GitHub:** https://github.com/byabdullahkhan
